@@ -17,14 +17,14 @@ export function formatResults(results: LintResults): string {
 
     for (const error of errors) {
       const location = error.errorRange
-        ? `${filePath}:${error.lineNumber}:${error.errorRange[0]}`
-        : `${filePath}:${error.lineNumber}`;
+        ? `${pc.yellow(filePath)}:${pc.white(error.lineNumber)}:${pc.white(error.errorRange[0])}`
+        : `${pc.yellow(filePath)}:${pc.white(error.lineNumber)}`;
 
       const ruleNames = error.ruleNames.join('/');
       const detail = error.errorDetail ? ` [${error.errorDetail}]` : '';
       const context = error.errorContext ? ` [Context: "${error.errorContext}"]` : '';
 
-      lines.push(pc.yellow(location));
+      lines.push(location);
       lines.push(`${pc.red(ruleNames)} ${error.ruleDescription}${detail}${context}`);
       lines.push('');
     }

@@ -2,7 +2,6 @@
   "name": "@finografic/md-lint",
   "type": "module",
   "version": "0.3.0",
-  "packageManager": "pnpm@10.8.0",
   "description": "Markdown linter with scoped rule sets for standard and AI agent docs",
   "homepage": "https://github.com/finografic/md-lint",
   "repository": {
@@ -24,7 +23,7 @@
   "keywords": [
     "finografic",
     "md-lint",
-    "genx:type:cli",
+    "genx:type:library",
     "cli",
     "markdown",
     "linter"
@@ -32,17 +31,20 @@
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "module": "./dist/index.mjs",
-  "files": [
-    "dist"
-  ],
   "exports": {
-    ".": "./dist/index.mjs",
-    "./cli": "./dist/cli.mjs",
-    "./package.json": "./package.json"
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.mts"
+    },
+    "./styles/*": "./styles/*"
   },
   "bin": {
     "md-lint": "./dist/cli.mjs"
   },
+  "files": [
+    "dist",
+    "styles"
+  ],
   "scripts": {
     "---------- DEV_AND_BUILD": "---------------------------------------------",
     "dev": "tsdown --watch",
@@ -79,12 +81,18 @@
     "prepack": "pnpm build",
     "prepare": "husky"
   },
+  "dependencies": {
+    "globby": "^16.2.0",
+    "markdownlint": "^0.40.0",
+    "picocolors": "^1.1.1",
+    "picomatch": "^4.0.4"
+  },
   "devDependencies": {
     "@commitlint/cli": "^20.2.0",
     "@commitlint/config-conventional": "^20.2.0",
     "@eslint/js": "^9.39.2",
     "@finografic/eslint-config": "^9.18.4",
-    "@finografic/oxfmt-config": "^1.0.3",
+    "@finografic/oxfmt-config": "^1.5.0",
     "@stylistic/eslint-plugin": "^5.6.1",
     "@types/node": "^24.0.0",
     "@types/picomatch": "^4.0.3",
@@ -94,12 +102,13 @@
     "globals": "^17.3.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
-    "oxfmt": "^0.43.0",
+    "oxfmt": "^0.44.0",
     "tsdown": "^0.20.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.51.0",
     "vitest": "^4.0.18"
   },
+  "packageManager": "pnpm@10.32.1",
   "lint-staged": {
     "*.{ts,tsx,js,jsx,mjs,cjs}": [
       "oxfmt --no-error-on-unmatched-pattern",
@@ -112,11 +121,5 @@
     "*.{json,jsonc,yml,yaml,toml}": [
       "oxfmt --no-error-on-unmatched-pattern"
     ]
-  },
-  "dependencies": {
-    "globby": "^16.2.0",
-    "markdownlint": "^0.40.0",
-    "picocolors": "^1.1.1",
-    "picomatch": "^4.0.4"
   }
 }

@@ -12,7 +12,7 @@ import { defineConfig } from 'oxfmt';
 
 export default defineConfig({
   $schema: './node_modules/oxfmt/configuration_schema.json',
-  ignorePatterns: [...ignorePatterns],
+  ignorePatterns: [...ignorePatterns, 'styles/**'],
   ...base,
   ...typescript,
   ...sorting,

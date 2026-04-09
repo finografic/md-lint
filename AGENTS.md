@@ -4,10 +4,6 @@
 
 Project-specific rules live in `.github/instructions/project/**/*.instructions.md`.
 
-<!-- NOTE: CLI projects (genx:type:cli keyword in package.json) only -->
-
-- Generated README sections are managed by `pnpm docs:usage` — never edit content between `<!-- GENERATED:*:START/END -->` markers by hand.
-
 - Do not reference `@workspace/*` — all imports and deps must use published package names.
 
 ## Rules — General

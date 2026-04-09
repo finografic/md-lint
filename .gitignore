@@ -22,9 +22,12 @@ docs/drafts/
 # IDE
 .cursor/
 !.cursor/rules/
+.worktrees/
+**/worktrees/
 .idea/
 *.swp
 *.swo
+
 
 # Logs
 *.log

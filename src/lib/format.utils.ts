@@ -24,7 +24,7 @@ export function formatResults(results: LintResults): string {
       const detail = error.errorDetail ? ` [${error.errorDetail}]` : '';
       const context = error.errorContext ? ` [Context: "${error.errorContext}"]` : '';
 
-      lines.push(pc.cyan(location));
+      lines.push(pc.yellow(location));
       lines.push(`${pc.red(ruleNames)} ${error.ruleDescription}${detail}${context}`);
       lines.push('');
     }

@@ -32,6 +32,8 @@ export interface LintAllResult {
     errorsStandard: number;
     errorsAgent: number;
     errorsTotal: number;
+    /** Files written by `--fix` when content changed (markdownlint applyFixes). */
+    fixesApplied: number;
   };
 }
 
@@ -43,9 +45,9 @@ async function lintFiles(
   config: Configuration,
   cwd: string,
   fix: boolean,
-): Promise<{ results: LintResults; errorCount: number }> {
+): Promise<{ results: LintResults; errorCount: number; fixesApplied: number }> {
   if (files.length === 0) {
-    return { results: {}, errorCount: 0 };
+    return { results: {}, errorCount: 0, fixesApplied: 0 };
   }
 
   // markdownlint expects absolute paths or paths relative to CWD
@@ -56,6 +58,7 @@ async function lintFiles(
     config,
   });
 
+  let fixesApplied = 0;
   if (fix) {
     for (const filePath of absolutePaths) {
       const fileResults = results[filePath];
@@ -64,6 +67,7 @@ async function lintFiles(
         const fixed = applyFixes(content, fileResults);
         if (fixed !== content) {
           writeFileSync(filePath, fixed, 'utf8');
+          fixesApplied += 1;
         }
       }
     }
@@ -82,7 +86,7 @@ async function lintFiles(
     relativeResults[relPath] = errors as LintError[];
   }
 
-  return { results: relativeResults, errorCount };
+  return { results: relativeResults, errorCount, fixesApplied };
 }
 
 /**
@@ -105,10 +109,14 @@ export async function lintAll(options: LintAllOptions = {}): Promise<LintAllResu
 
   // 3. Lint each category (skip if --only filters it out)
   const standardResult =
-    only === 'agent' ? { results: {}, errorCount: 0 } : await lintFiles(standard, standardConfig, cwd, fix);
+    only === 'agent'
+      ? { results: {}, errorCount: 0, fixesApplied: 0 }
+      : await lintFiles(standard, standardConfig, cwd, fix);
 
   const agentResult =
-    only === 'standard' ? { results: {}, errorCount: 0 } : await lintFiles(agent, agentConfig, cwd, fix);
+    only === 'standard'
+      ? { results: {}, errorCount: 0, fixesApplied: 0 }
+      : await lintFiles(agent, agentConfig, cwd, fix);
 
   // 4. Merge results
   const mergedResults: LintResults = {
@@ -125,6 +133,7 @@ export async function lintAll(options: LintAllOptions = {}): Promise<LintAllResu
       errorsStandard: standardResult.errorCount,
       errorsAgent: agentResult.errorCount,
       errorsTotal: standardResult.errorCount + agentResult.errorCount,
+      fixesApplied: standardResult.fixesApplied + agentResult.fixesApplied,
     },
   };
 }

@@ -2,11 +2,8 @@ import pc from 'picocolors';
 import type { LintResults, LintError } from 'markdownlint';
 
 /**
- * Format lint results to a string matching markdownlint-cli2 output style.
- *
- * Example:
- *   README.md:3 MD022/blanks-around-headings Headings should be surrounded by blank lines [...]
- *   docs/guide.md:15:81 MD013/line-length Line length [Expected: 80; Actual: 120]
+ * Format lint results for stderr: location on its own line (cyan), then rule + description
+ * (red + plain), then a blank line before the next violation.
  */
 export function formatResults(results: LintResults): string {
   const lines: string[] = [];
@@ -27,32 +24,11 @@ export function formatResults(results: LintResults): string {
       const detail = error.errorDetail ? ` [${error.errorDetail}]` : '';
       const context = error.errorContext ? ` [Context: "${error.errorContext}"]` : '';
 
-      lines.push(`${pc.cyan(location)} ${pc.red(ruleNames)} ${error.ruleDescription}${detail}${context}`);
+      lines.push(pc.cyan(location));
+      lines.push(`${pc.red(ruleNames)} ${error.ruleDescription}${detail}${context}`);
+      lines.push('');
     }
   }
 
   return lines.join('\n');
-}
-
-/**
- * Format a summary line.
- */
-export function formatSummary(counts: {
-  filesTotal: number;
-  filesStandard: number;
-  filesAgent: number;
-  errorsTotal: number;
-}): string {
-  const parts = [
-    `Linted ${pc.bold(String(counts.filesTotal))} file(s)`,
-    `(${counts.filesStandard} standard, ${counts.filesAgent} agent)`,
-  ];
-
-  if (counts.errorsTotal > 0) {
-    parts.push(`— ${pc.red(pc.bold(String(counts.errorsTotal)))} error(s)`);
-  } else {
-    parts.push(`— ${pc.green('no errors')}`);
-  }
-
-  return parts.join(' ');
 }

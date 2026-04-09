@@ -14,6 +14,7 @@ describe('lintAll', () => {
     expect(result.counts.errorsTotal).toBe(0);
     expect(result.counts.filesStandard).toBe(1);
     expect(result.counts.filesAgent).toBe(0);
+    expect(result.counts.fixesApplied).toBe(0);
   });
 
   it('returns errors for standard violations (missing H1, missing code fence language)', async () => {
@@ -100,5 +101,6 @@ describe('lintAll', () => {
 
     expect(result.counts.filesTotal).toBe(0);
     expect(result.counts.errorsTotal).toBe(0);
+    expect(result.counts.fixesApplied).toBe(0);
   });
 });

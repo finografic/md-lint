@@ -32,11 +32,9 @@
   "types": "./dist/index.d.mts",
   "module": "./dist/index.mjs",
   "exports": {
-    ".": {
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.mts"
-    },
-    "./styles/*": "./styles/*"
+    ".": "./dist/index.mjs",
+    "./cli": "./dist/cli.mjs",
+    "./package.json": "./package.json"
   },
   "bin": {
     "md-lint": "./dist/cli.mjs"

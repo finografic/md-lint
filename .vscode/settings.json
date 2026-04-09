@@ -6,10 +6,7 @@
   },
   "eslint.enable": true,
   "eslint.useFlatConfig": true,
-  "eslint.validate": [
-    "javascript",
-    "typescript"
-  ],
+  "eslint.validate": ["javascript", "typescript"],
   "oxc.typeAware": true,
   "editor.defaultFormatter": "oxc.oxc-vscode",
   "editor.formatOnSaveMode": "file",
@@ -33,19 +30,6 @@
   "[markdown]": {
     "editor.defaultFormatter": "oxc.oxc-vscode",
     "editor.formatOnSave": true
-  },
-  "stylelint.enable": true,
-  "stylelint.validate": [
-    "css",
-    "scss"
-  ],
-  "css.validate": false,
-  "scss.validate": false,
-  "[css]": {
-    "editor.defaultFormatter": "oxc.oxc-vscode"
-  },
-  "[scss]": {
-    "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "[toml]": {
     "editor.defaultFormatter": "oxc.oxc-vscode"

@@ -1,6 +1,6 @@
-# 🦋 **PACKAGE_NAME**
+# @finografic/md-lint
 
-> **DESCRIPTION**
+> Markdown linter with scoped rule sets for standard and AI agent docs
 
 ## Installation
 
@@ -37,4 +37,4 @@ pnpm lint
 
 ## License
 
-MIT © [**AUTHOR_NAME**](https://github.com/finografic)
+MIT © [Justin](https://github.com/finografic)

@@ -1,9 +1,9 @@
 {
   "name": "@finografic/md-lint",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "packageManager": "pnpm@10.8.0",
-  "description": "Markdown linter that runs on both standard and agent .md files",
+  "description": "Markdown linter with scoped rule sets for standard and AI agent docs",
   "homepage": "https://github.com/finografic/md-lint",
   "repository": {
     "type": "git",
@@ -24,8 +24,10 @@
   "keywords": [
     "finografic",
     "md-lint",
-    "genx:type:library",
-    "library"
+    "genx:type:cli",
+    "cli",
+    "markdown",
+    "linter"
   ],
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
@@ -35,17 +37,17 @@
   ],
   "exports": {
     ".": "./dist/index.mjs",
+    "./cli": "./dist/cli.mjs",
     "./package.json": "./package.json"
   },
   "bin": {
     "md-lint": "./dist/cli.mjs"
   },
   "scripts": {
-    "---------- DEV": "-------------------------------------------------------",
+    "---------- DEV_AND_BUILD": "---------------------------------------------",
     "dev": "tsdown --watch",
     "link": "pnpm build && pnpm link --global",
     "unlink": "pnpm unlink --global",
-    "·········· BUILD": "·····················································",
     "build": "tsdown",
     "·········· TESTING": "···················································",
     "test": "vitest",
@@ -54,6 +56,8 @@
     "·········· LINTING": "···················································",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "lint.md": "tsx src/cli.ts",
+    "lint.md.fix": "tsx src/cli.ts --fix",
     "·········· FORMATTING": "················································",
     "format:check": "oxfmt --check",
     "format:fix": "oxfmt",
@@ -82,7 +86,9 @@
     "@finografic/eslint-config": "^9.18.4",
     "@finografic/oxfmt-config": "^1.0.3",
     "@stylistic/eslint-plugin": "^5.6.1",
+    "@stylistic/stylelint-plugin": "latest",
     "@types/node": "^24.0.0",
+    "@types/picomatch": "^4.0.3",
     "@typescript-eslint/eslint-plugin": "^8.51.0",
     "@typescript-eslint/parser": "^8.51.0",
     "eslint": "9.39.2",
@@ -90,12 +96,11 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "oxfmt": "^0.43.0",
+    "stylelint": "latest",
     "tsdown": "^0.20.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.51.0",
-    "vitest": "^4.0.18",
-    "stylelint": "latest",
-    "@stylistic/stylelint-plugin": "latest"
+    "vitest": "^4.0.18"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,mjs,cjs}": [
@@ -110,5 +115,10 @@
       "oxfmt --no-error-on-unmatched-pattern"
     ]
   },
-  "dependencies": {}
+  "dependencies": {
+    "globby": "^16.2.0",
+    "markdownlint": "^0.40.0",
+    "picocolors": "^1.1.1",
+    "picomatch": "^4.0.4"
+  }
 }

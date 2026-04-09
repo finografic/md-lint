@@ -2,7 +2,6 @@ import js from '@eslint/js';
 import stylistic from '@stylistic/eslint-plugin';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import globals from 'globals';
-
 import tseslint from 'typescript-eslint';
 
 export default defineConfig([
@@ -72,5 +71,4 @@ export default defineConfig([
       '@stylistic/multiline-ternary': ['warn', 'always-multiline'],
     },
   },
-
 ]);

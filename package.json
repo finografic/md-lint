@@ -1,7 +1,7 @@
 {
   "name": "@finografic/md-lint",
   "type": "module",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Markdown linter with scoped rule sets for standard and AI agent docs",
   "homepage": "https://github.com/finografic/md-lint",
   "repository": {

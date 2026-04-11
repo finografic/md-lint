@@ -29,6 +29,7 @@ export const agentConfig: Configuration = {
   'line-length': false, // MD013 — agent docs are long-form
   'no-inline-html': false, // MD033 — agent docs embed HTML snippets
   'no-duplicate-heading': false, // MD024 — repeated sections common
+  'no-trailing-punctuation': false, // MD026 - no trailing punctuation in heading
   'no-bare-urls': false, // MD034 — reference URLs are fine bare
   'no-emphasis-as-heading': false, // MD036 — bold-as-heading is common pattern
   'blanks-around-headings': false, // MD022 — tighter layout in instruction docs

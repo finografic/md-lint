@@ -14,6 +14,7 @@ export const standardConfig: Configuration = {
   'heading-increment': true, // MD001 — no skipping levels
   'first-line-heading': { level: 1 }, // MD041 — must start with H1
   'no-duplicate-heading': { siblings_only: true }, // MD024 — allow same text under different parents
+  'no-trailing-punctuation': false, // MD026 - no trailing punctuation in heading
 
   // ── Whitespace ──────────────────────────────────────
   'no-trailing-spaces': true, // MD009
@@ -33,7 +34,7 @@ export const standardConfig: Configuration = {
 
   // ── Code ────────────────────────────────────────────
   'code-fence-style': { style: 'backtick' }, // MD048
-  'fenced-code-language': true, // MD040 — require language identifier
+  'fenced-code-language': false, // MD040 — require language identifier
   'code-block-style': { style: 'fenced' }, // MD046 — fenced only, no indented
 
   // ── Links / Images ──────────────────────────────────

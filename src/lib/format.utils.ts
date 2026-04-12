@@ -16,16 +16,30 @@ export function formatResults(results: LintResults): string {
     if (!errors || errors.length === 0) continue;
 
     for (const error of errors) {
-      const location = error.errorRange
-        ? `${pc.yellow(filePath)}:${pc.white(error.lineNumber)}:${pc.white(error.errorRange[0])}`
-        : `${pc.yellow(filePath)}:${pc.white(error.lineNumber)}`;
+      lines.push(pc.bold(filePath));
 
-      const ruleNames = error.ruleNames.join('/');
-      const detail = error.errorDetail ? ` [${error.errorDetail}]` : '';
-      const context = error.errorContext ? ` [Context: "${error.errorContext}"]` : '';
+      lines.push(
+        error.ruleNames.length === 1
+          ? pc.red(pc.bold(error.ruleNames[0]))
+          : pc.red(`${pc.bold(error.ruleNames[0])}: ${error.ruleNames.slice(1).join(', ')}`),
+      );
 
-      lines.push(location);
-      lines.push(`${pc.red(ruleNames)} ${error.ruleDescription}${detail}${context}`);
+      lines.push(pc.yellow(error.ruleDescription));
+
+      lines.push(
+        error.errorRange
+          ? pc.gray(`line:${error.lineNumber}, column:${error.errorRange[0]}`)
+          : pc.gray(`line:${error.lineNumber}`),
+      );
+
+      if (error.errorDetail) {
+        lines.push(pc.gray(error.errorDetail));
+      }
+
+      if (error.errorContext) {
+        // lines.push(`[Context: "${error.errorContext}"]`);
+      }
+
       lines.push('');
     }
   }

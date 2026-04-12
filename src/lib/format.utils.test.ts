@@ -19,8 +19,10 @@ describe('formatResults', () => {
 
     expect(out).toBe(
       [
-        'docs/a.md:2',
-        'MD001/heading-increment Heading levels should only increment by one level at a time',
+        'docs/a.md',
+        'MD001: heading-increment',
+        'Heading levels should only increment by one level at a time',
+        'line:2',
         '',
       ].join('\n'),
     );

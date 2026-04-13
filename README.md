@@ -10,8 +10,25 @@ pnpm add @finografic/md-lint
 
 ## Usage
 
+```bash
+npx md-lint
+npx md-lint --fix "docs/**/*.md"
+```
+
+Finografic **standard** vs **agent** presets apply first. The consumer repo can optionally add:
+
+| File                  | Purpose                                                                   |
+| --------------------- | ------------------------------------------------------------------------- |
+| `.markdownlint.jsonc` | Rule overrides (JSON with comments); merged on top of the matching preset |
+| `.markdownlint.json`  | Same, plain JSON                                                          |
+| `.markdownlintignore` | Extra ignore globs (one per line, `#` comments)                           |
+
+Files are searched **upward** from the current working directory until the nearest **`.git`** directory (repository root), so parent folders and your home directory are not consulted.
+
 ```typescript
-import {} from '@finografic/md-lint';
+import { lintAll } from '@finografic/md-lint';
+
+await lintAll({ cwd: process.cwd(), fix: false });
 ```
 
 ## Development

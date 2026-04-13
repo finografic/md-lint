@@ -9,6 +9,12 @@ import { agentConfig } from '../config/agent.config.js';
 import { ignorePatterns } from '../config/ignore.config.js';
 import { standardConfig } from '../config/standard.config.js';
 import { classifyFiles, type FileCategory } from './classify.utils.js';
+import {
+  findConsumerMarkdownlintPaths,
+  loadConsumerMarkdownlintConfig,
+  mergeMarkdownlintConfig,
+  readMarkdownlintIgnorePatterns,
+} from './consumer-markdownlint.utils.js';
 
 export interface LintAllOptions {
   /** Glob patterns for files to lint. Defaults to ['**\/*.md', '**\/*.mdx']. */
@@ -96,10 +102,27 @@ async function lintFiles(
 export async function lintAll(options: LintAllOptions = {}): Promise<LintAllResult> {
   const { globs = ['**/*.md', '**/*.mdx'], fix = false, only, cwd = process.cwd() } = options;
 
+  const { configPath, ignorePath } = findConsumerMarkdownlintPaths(cwd);
+  const consumerIgnore = ignorePath ? readMarkdownlintIgnorePatterns(ignorePath) : [];
+  let consumerConfig: Configuration | null = null;
+  if (configPath) {
+    try {
+      consumerConfig = loadConsumerMarkdownlintConfig(configPath);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      throw new Error(`Failed to load ${configPath}: ${msg}`);
+    }
+  }
+
+  const effectiveStandard =
+    consumerConfig === null ? standardConfig : mergeMarkdownlintConfig(standardConfig, consumerConfig);
+  const effectiveAgent =
+    consumerConfig === null ? agentConfig : mergeMarkdownlintConfig(agentConfig, consumerConfig);
+
   // 1. Glob all markdown files
   const allFiles = await globby(globs, {
     cwd,
-    ignore: [...ignorePatterns],
+    ignore: [...ignorePatterns, ...consumerIgnore],
     dot: true, // Include dotfiles like .github/
     gitignore: true,
   });
@@ -111,12 +134,12 @@ export async function lintAll(options: LintAllOptions = {}): Promise<LintAllResu
   const standardResult =
     only === 'agent'
       ? { results: {}, errorCount: 0, fixesApplied: 0 }
-      : await lintFiles(standard, standardConfig, cwd, fix);
+      : await lintFiles(standard, effectiveStandard, cwd, fix);
 
   const agentResult =
     only === 'standard'
       ? { results: {}, errorCount: 0, fixesApplied: 0 }
-      : await lintFiles(agent, agentConfig, cwd, fix);
+      : await lintFiles(agent, effectiveAgent, cwd, fix);
 
   // 4. Merge results
   const mergedResults: LintResults = {

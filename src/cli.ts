@@ -21,6 +21,11 @@ ${pc.dim('Options:')}
   --help, -h         Show this help message
   --version, -v      Show version
 
+${pc.dim('Consumer config (optional, discovered upward from cwd until .git):')}
+  .markdownlint.jsonc   Rule overrides merged on top of finografic standard/agent presets
+  .markdownlint.json   Same (JSON only)
+  .markdownlintignore   Extra globby ignore patterns (lines, # comments)
+
 ${pc.dim('Examples:')}
   md-lint                          Lint all .md files
   md-lint "docs/**/*.md"           Lint specific paths

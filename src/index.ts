@@ -1,5 +1,6 @@
 export { lintAll, type LintAllOptions, type LintAllResult } from './lib/lint.utils.js';
 export {
+  filterPathsByIgnorePatterns,
   findConsumerMarkdownlintPaths,
   loadConsumerMarkdownlintConfig,
   mergeMarkdownlintConfig,

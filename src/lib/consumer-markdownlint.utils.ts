@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
+import ignore from 'ignore';
 import { parse as parseJsonc, printParseErrorCode, type ParseError } from 'jsonc-parser';
 import { readConfig } from 'markdownlint/sync';
 import type { Configuration, ConfigurationParser } from 'markdownlint';
@@ -124,4 +125,28 @@ export function mergeMarkdownlintConfig(base: Configuration, overlay: Configurat
 
 export function readMarkdownlintIgnorePatterns(ignorePath: string): string[] {
   return parseMarkdownlintIgnoreFile(readFileSync(ignorePath, 'utf8'));
+}
+
+/**
+ * Gitignore-style filter for paths relative to `cwd`.
+ *
+ * **Why:** `globby` does not apply `ignore` to **absolute** positive patterns (e.g. paths passed by
+ * lint-staged). This enforces the same built-in + `.markdownlintignore` rules for every path.
+ */
+export function filterPathsByIgnorePatterns(
+  paths: string[],
+  cwd: string,
+  patterns: readonly string[],
+): string[] {
+  if (patterns.length === 0 || paths.length === 0) {
+    return paths;
+  }
+
+  const ig = ignore().add([...patterns]);
+
+  return paths.filter((p) => {
+    const abs = isAbsolute(p) ? p : resolve(cwd, p);
+    const rel = relative(cwd, abs).replace(/\\/g, '/');
+    return !ig.ignores(rel);
+  });
 }

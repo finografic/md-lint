@@ -4,11 +4,21 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import {
+  filterPathsByIgnorePatterns,
   findConsumerMarkdownlintPaths,
   loadConsumerMarkdownlintConfig,
   mergeMarkdownlintConfig,
   parseMarkdownlintIgnoreFile,
 } from './consumer-markdownlint.utils.js';
+
+describe('filterPathsByIgnorePatterns', () => {
+  it('drops absolute paths under an ignored directory (lint-staged style)', () => {
+    const cwd = '/proj';
+    const abs = '/proj/vault/transcripts/note.md';
+    const out = filterPathsByIgnorePatterns([abs], cwd, ['vault/transcripts/']);
+    expect(out).toEqual([]);
+  });
+});
 
 describe('parseMarkdownlintIgnoreFile', () => {
   it('strips comments, blanks, and trims patterns', () => {

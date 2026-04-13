@@ -10,6 +10,7 @@ import { ignorePatterns } from '../config/ignore.config.js';
 import { standardConfig } from '../config/standard.config.js';
 import { classifyFiles, type FileCategory } from './classify.utils.js';
 import {
+  filterPathsByIgnorePatterns,
   findConsumerMarkdownlintPaths,
   loadConsumerMarkdownlintConfig,
   mergeMarkdownlintConfig,
@@ -120,12 +121,14 @@ export async function lintAll(options: LintAllOptions = {}): Promise<LintAllResu
     consumerConfig === null ? agentConfig : mergeMarkdownlintConfig(agentConfig, consumerConfig);
 
   // 1. Glob all markdown files
-  const allFiles = await globby(globs, {
+  const mergedIgnore = [...ignorePatterns, ...consumerIgnore];
+  const allFilesRaw = await globby(globs, {
     cwd,
-    ignore: [...ignorePatterns, ...consumerIgnore],
+    ignore: mergedIgnore,
     dot: true, // Include dotfiles like .github/
     gitignore: true,
   });
+  const allFiles = filterPathsByIgnorePatterns(allFilesRaw, cwd, mergedIgnore);
 
   // 2. Classify
   const { standard, agent } = classifyFiles(allFiles);

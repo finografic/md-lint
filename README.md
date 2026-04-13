@@ -25,6 +25,8 @@ Finografic **standard** vs **agent** presets apply first. The consumer repo can 
 
 Files are searched **upward** from the current working directory until the nearest **`.git`** directory (repository root), so parent folders and your home directory are not consulted.
 
+**lint-staged:** Hooks often pass **absolute** file paths to `md-lint`. Ignore rules still apply (same as gitignore semantics); upgrade to the latest `@finografic/md-lint` if ignores seemed ignored before.
+
 ```typescript
 import { lintAll } from '@finografic/md-lint';
 

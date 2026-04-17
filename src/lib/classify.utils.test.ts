@@ -58,6 +58,12 @@ describe('classifyFile', () => {
   it('classifies .cline/rules/any.md as agent', () => {
     expect(classifyFile('.cline/rules/any.md')).toBe('agent');
   });
+
+  it('classifies absolute paths as agent when under cwd (lint-staged)', () => {
+    const cwd = '/repo';
+    expect(classifyFile('/repo/.github/skills/migrate/SKILL.md', cwd)).toBe('agent');
+    expect(classifyFile('/repo/README.md', cwd)).toBe('standard');
+  });
 });
 
 describe('classifyFiles', () => {

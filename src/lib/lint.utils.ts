@@ -6,8 +6,8 @@ import { lint } from 'markdownlint/promise';
 import type { Configuration, LintResults, LintError } from 'markdownlint';
 
 import { agentConfig } from '../config/agent.config.js';
-import { ignorePatterns } from '../config/ignore.config.js';
 import { standardConfig } from '../config/standard.config.js';
+import { ignorePatterns } from '../config/standard.patterns.js';
 import { classifyFiles, type FileCategory } from './classify.utils.js';
 import {
   filterPathsByIgnorePatterns,
@@ -131,7 +131,7 @@ export async function lintAll(options: LintAllOptions = {}): Promise<LintAllResu
   const allFiles = filterPathsByIgnorePatterns(allFilesRaw, cwd, mergedIgnore);
 
   // 2. Classify
-  const { standard, agent } = classifyFiles(allFiles);
+  const { standard, agent } = classifyFiles(allFiles, cwd);
 
   // 3. Lint each category (skip if --only filters it out)
   const standardResult =

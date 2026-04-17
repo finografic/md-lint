@@ -7,8 +7,13 @@ export {
   parseMarkdownlintIgnoreFile,
   readMarkdownlintIgnorePatterns,
 } from './lib/consumer-markdownlint.utils.js';
-export { classifyFile, classifyFiles, type FileCategory } from './lib/classify.utils.js';
+export {
+  classifyFile,
+  classifyFiles,
+  toProjectRelativePath,
+  type FileCategory,
+} from './lib/classify.utils.js';
 export { standardConfig } from './config/standard.config.js';
 export { agentConfig } from './config/agent.config.js';
-export { AGENT_DOC_PATHS, AGENT_DOC_MARKDOWN_PATHS } from './config/agent-docs.patterns.js';
-export { ignorePatterns } from './config/ignore.config.js';
+export { AGENT_DOC_PATHS, AGENT_DOC_MARKDOWN_PATHS } from './config/agent.patterns.js';
+export { ignorePatterns } from './config/standard.patterns.js';

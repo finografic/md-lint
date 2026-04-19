@@ -15,6 +15,7 @@ build/
 .codex/
 .claude/
 !.claude/settings.json
+!.claude/commands/
 
 # Docs
 docs/drafts/

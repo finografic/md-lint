@@ -72,7 +72,7 @@
     "·········· PACKAGES": "··················································",
     "update:eslint-config": "pnpm update @finografic/eslint-config --latest",
     "update:oxfmt-config": "pnpm update @finografic/oxfmt-config --latest && pnpm update oxfmt --latest",
-    "upgrade:deps:all": "pnpm update --latest",
+    "update:deps:all": "pnpm update --latest",
     "·········· UTILS": "·····················································",
     "tsc:debug": "tsc --pretty --project tsconfig.json",
     "typecheck": "tsc --project tsconfig.json --noEmit",

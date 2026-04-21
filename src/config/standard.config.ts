@@ -29,7 +29,8 @@ export const standardConfig: Configuration = {
   // ── Lists ───────────────────────────────────────────
   'list-marker-space': true, // MD030
   'ul-style': { style: 'dash' }, // MD004 — consistent dash markers
-  'ol-prefix': { style: 'one_or_ordered', severity: 'warning' }, // MD029 — 1. 2. 3. not 1. 1. 1.
+  // 'ol-prefix': { style: 'ordered', severity: 'warning' }, // MD029 — 1. 2. 3. not 1. 1. 1.
+  'ol-prefix': false, // MD029 — 1. 2. 3. not 1. 1. 1.
   'list-indent': true, // MD007
 
   // ── Code ────────────────────────────────────────────

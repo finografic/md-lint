@@ -1,3 +1,4 @@
+import type { OxfmtConfig, OxfmtOverrideConfig } from '@finografic/oxc-config/oxfmt';
 import {
   AGENT_DOC_MARKDOWN_PATHS,
   agentMarkdown,
@@ -6,18 +7,14 @@ import {
   json,
   markdown,
   sorting,
-  typescript,
-} from '@finografic/oxfmt-config';
+} from '@finografic/oxc-config/oxfmt';
 import { defineConfig } from 'oxfmt';
 
 export default defineConfig({
-  $schema: './node_modules/oxfmt/configuration_schema.json',
-  ignorePatterns: [...ignorePatterns, 'styles/**'],
+  ignorePatterns: [...ignorePatterns, 'styles/**', 'src/config/*.config.ts'],
   ...base,
-  ...typescript,
   ...sorting,
   overrides: [
-    { files: ['*.ts', '*.tsx'], excludeFiles: [], options: { ...typescript } },
     { files: ['*.json', '*.jsonc'], excludeFiles: [], options: { ...json } },
     {
       files: ['*.md', '*.mdx'],
@@ -29,5 +26,6 @@ export default defineConfig({
       excludeFiles: [],
       options: { ...agentMarkdown },
     },
-  ],
-} satisfies ReturnType<typeof defineConfig>);
+  ] satisfies OxfmtOverrideConfig[],
+} satisfies OxfmtConfig);
+

@@ -35,9 +35,13 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Lint
+        run: pnpm lint:ci
+
+      - name: Lint
         run: pnpm lint
 
       - name: Type check
         run: pnpm typecheck
+
       - name: Format check
         run: pnpm format:check

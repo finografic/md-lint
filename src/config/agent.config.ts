@@ -1,4 +1,5 @@
 import type { Configuration } from 'markdownlint';
+import { defineRules, mapToConfig } from './rule-map.js';
 
 /**
  * Agent markdown rules — relaxed for AI instruction docs.
@@ -10,32 +11,32 @@ import type { Configuration } from 'markdownlint';
  *
  * We still enforce basic hygiene that prevents parse failures.
  */
-export const agentConfig: Configuration = {
-  'default': true,
-
+const rules = defineRules([
   // ── Keep enabled (structural hygiene) ───────────────
-  'heading-style': { style: 'atx' }, // MD003 — consistency still matters
-  'heading-increment': true, // MD001 — don't skip levels
-  'no-trailing-spaces': true, // MD009
-  'blanks-around-fences': true, // MD031 — prevents parse failures
-  'code-fence-style': { style: 'backtick' }, // MD048
-  'code-block-style': { style: 'fenced' }, // MD046
-  'no-empty-links': true, // MD042
-  'no-space-in-emphasis': true, // MD037
-  'no-space-in-code': true, // MD038
+  ['MD001', { 'heading-increment': true }],            // don't skip levels
+  ['MD003', { 'heading-style': { style: 'atx' } }],   // consistency still matters
+  ['MD009', { 'no-trailing-spaces': true }],
+  ['MD031', { 'blanks-around-fences': true }],         // prevents parse failures
+  ['MD037', { 'no-space-in-emphasis': true }],
+  ['MD038', { 'no-space-in-code': true }],
+  ['MD042', { 'no-empty-links': true }],
+  ['MD046', { 'code-block-style': { style: 'fenced' } }],
+  ['MD048', { 'code-fence-style': { style: 'backtick' } }],
 
   // ── Disabled (too restrictive for agent docs) ───────
-  'first-line-heading': false, // MD041 — agents often start with context blocks
-  'line-length': false, // MD013 — agent docs are long-form
-  'no-inline-html': false, // MD033 — agent docs embed HTML snippets
-  'no-duplicate-heading': false, // MD024 — repeated sections common
-  'no-trailing-punctuation': false, // MD026 - no trailing punctuation in heading
-  'no-bare-urls': false, // MD034 — reference URLs are fine bare
-  'no-emphasis-as-heading': false, // MD036 — bold-as-heading is common pattern
-  'blanks-around-headings': false, // MD022 — tighter layout in instruction docs
-  'blanks-around-lists': false, // MD032 — same reason
-  'no-multiple-blanks': false, // MD012 — visual separation in long docs
-  'fenced-code-language': false, // MD040 — pseudo-code blocks without language
-  'ol-prefix': false, // MD029 — numbering style varies
-  'link-image-style': false, // MD054 — mixed link styles
-};
+  ['MD012', { 'no-multiple-blanks': false }],          // visual separation in long docs
+  ['MD013', { 'line-length': false }],                 // agent docs are long-form
+  ['MD022', { 'blanks-around-headings': false }],      // tighter layout in instruction docs
+  ['MD024', { 'no-duplicate-heading': false }],        // repeated sections common
+  ['MD026', { 'no-trailing-punctuation': false }],
+  ['MD029', { 'ol-prefix': false }],                   // numbering style varies
+  ['MD032', { 'blanks-around-lists': false }],         // same reason as MD022
+  ['MD033', { 'no-inline-html': false }],              // agent docs embed HTML snippets
+  ['MD034', { 'no-bare-urls': false }],                // reference URLs are fine bare
+  ['MD036', { 'no-emphasis-as-heading': false }],      // bold-as-heading is common pattern
+  ['MD040', { 'fenced-code-language': false }],        // pseudo-code blocks without language
+  ['MD041', { 'first-line-heading': false }],          // agents often start with context blocks
+  ['MD054', { 'link-image-style': false }],            // mixed link styles
+]);
+
+export const agentConfig: Configuration = mapToConfig(rules);

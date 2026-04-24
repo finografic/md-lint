@@ -1,4 +1,5 @@
 import type { Configuration } from 'markdownlint';
+import { defineRules, mapToConfig } from './rule-map.js';
 
 /**
  * Standard markdown rules — READMEs, docs, guides.
@@ -6,48 +7,47 @@ import type { Configuration } from 'markdownlint';
  * These enforce consistent structure and prevent common mistakes
  * that affect readability and cross-parser compatibility.
  */
-export const standardConfig: Configuration = {
-  'default': true,
-
+const rules = defineRules([
   // ── Headings ────────────────────────────────────────
-  'heading-style': { style: 'atx' }, // MD003 — # style only
-  'heading-increment': true, // MD001 — no skipping levels
-  'first-line-heading': { level: 1 }, // MD041 — must start with H1
-  'no-duplicate-heading': { siblings_only: true }, // MD024 — allow same text under different parents
-  'no-trailing-punctuation': false, // MD026 - no trailing punctuation in heading
+  ['MD001', { 'heading-increment': true }],                                                      // no skipping levels
+  ['MD003', { 'heading-style': { style: 'atx' } }],                                             // # style only
+  ['MD024', { 'no-duplicate-heading': { siblings_only: true } }],                               // allow same text under different parents
+  ['MD026', { 'no-trailing-punctuation': false }],
+  ['MD041', { 'first-line-heading': { level: 1 } }],                                            // must start with H1
 
   // ── Whitespace ──────────────────────────────────────
-  'no-trailing-spaces': true, // MD009
-  'no-multiple-blanks': { maximum: 1 }, // MD012
-  'blanks-around-headings': true, // MD022
-  'blanks-around-fences': true, // MD031
-  'blanks-around-lists': true, // MD032
+  ['MD009', { 'no-trailing-spaces': true }],
+  ['MD012', { 'no-multiple-blanks': { maximum: 1 } }],
+  ['MD022', { 'blanks-around-headings': true }],
+  ['MD031', { 'blanks-around-fences': true }],
+  ['MD032', { 'blanks-around-lists': true }],
 
   // ── Line length ─────────────────────────────────────
-  'line-length': false, // MD013 — disabled; oxfmt handles wrapping
+  ['MD013', { 'line-length': false }],                                                           // disabled; oxfmt handles wrapping
 
   // ── Lists ───────────────────────────────────────────
-  'list-marker-space': true, // MD030
-  'ul-style': { style: 'dash' }, // MD004 — consistent dash markers
-  // 'ol-prefix': { style: 'ordered', severity: 'warning' }, // MD029 — 1. 2. 3. not 1. 1. 1.
-  'ol-prefix': false, // MD029 — 1. 2. 3. not 1. 1. 1.
-  'list-indent': true, // MD007
+  ['MD004', { 'ul-style': { style: 'dash' } }],                                                 // consistent dash markers
+  ['MD007', { 'list-indent': true }],
+  ['MD029', { 'ol-prefix': false }],
+  ['MD030', { 'list-marker-space': true }],
 
   // ── Code ────────────────────────────────────────────
-  'code-fence-style': { style: 'backtick' }, // MD048
-  'fenced-code-language': false, // MD040 — require language identifier
-  'code-block-style': { style: 'fenced' }, // MD046 — fenced only, no indented
+  ['MD040', { 'fenced-code-language': false }],
+  ['MD046', { 'code-block-style': { style: 'fenced' } }],                                       // fenced only, no indented
+  ['MD048', { 'code-fence-style': { style: 'backtick' } }],
 
   // ── Links / Images ──────────────────────────────────
-  'no-empty-links': true, // MD042
-  'link-image-style': { autolink: false }, // MD054 — disallow <url> autolinks
+  ['MD042', { 'no-empty-links': true }],
+  ['MD054', { 'link-image-style': { autolink: false } }],                                       // disallow <url> autolinks
 
   // ── HTML ────────────────────────────────────────────
-  'no-inline-html': { allowed_elements: ['br', 'sub', 'sup', 'details', 'summary'] }, // MD033
+  ['MD033', { 'no-inline-html': { allowed_elements: ['br', 'sub', 'sup', 'details', 'summary'] } }],
 
   // ── Misc ────────────────────────────────────────────
-  'no-bare-urls': true, // MD034
-  'no-emphasis-as-heading': true, // MD036
-  'no-space-in-emphasis': true, // MD037
-  'no-space-in-code': true, // MD038
-};
+  ['MD034', { 'no-bare-urls': true }],
+  ['MD036', { 'no-emphasis-as-heading': true }],
+  ['MD037', { 'no-space-in-emphasis': true }],
+  ['MD038', { 'no-space-in-code': true }],
+]);
+
+export const standardConfig: Configuration = mapToConfig(rules);

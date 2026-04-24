@@ -3,13 +3,13 @@ import { relative, resolve } from 'node:path';
 import { globby } from 'globby';
 import { applyFixes } from 'markdownlint';
 import { lint } from 'markdownlint/promise';
+import type { FileCategory } from './classify.utils.js';
 import type { Configuration, LintError, LintResults } from 'markdownlint';
 
 import { agentConfig } from '../config/agent.config.js';
 import { standardConfig } from '../config/standard.config.js';
 import { ignorePatterns } from '../config/standard.patterns.js';
 import { classifyFiles } from './classify.utils.js';
-import type { FileCategory } from './classify.utils.js';
 import {
   filterPathsByIgnorePatterns,
   findConsumerMarkdownlintPaths,

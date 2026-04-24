@@ -2,8 +2,8 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import ignore from 'ignore';
 import { parse as parseJsonc, printParseErrorCode } from 'jsonc-parser';
-import type { ParseError } from 'jsonc-parser';
 import { readConfig } from 'markdownlint/sync';
+import type { ParseError } from 'jsonc-parser';
 import type { Configuration, ConfigurationParser } from 'markdownlint';
 
 /**

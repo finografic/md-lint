@@ -29,7 +29,7 @@ export const AGENT_DOC_PATHS = [
   '.cline/rules/**/*.md',
 
   // ── Multi-agent / cross-tool ────────────────────────
-  '.ai/**/*.md',
+  '.agents/**/*.md',
   'AGENTS.md',
   'GEMINI.md',
   'COPILOT.md',

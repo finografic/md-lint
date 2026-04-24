@@ -6,16 +6,16 @@ import { AGENT_DOC_MARKDOWN_PATHS } from '../config/agent.patterns.js';
 export type FileCategory = 'standard' | 'agent';
 
 /**
- * Build a matcher from the agent doc glob patterns.
- * picomatch compiles globs once; the returned function is O(1) per file.
+ * Build a matcher from the agent doc glob patterns. picomatch compiles globs once; the returned function is
+ * O(1) per file.
  */
 const isAgentDoc = picomatch(AGENT_DOC_MARKDOWN_PATHS as unknown as string[], {
   dot: true,
 });
 
 /**
- * Normalize to a POSIX path relative to `cwd` so picomatch (relative globs) matches
- * whether the caller passed a repo-relative or absolute path (e.g. lint-staged).
+ * Normalize to a POSIX path relative to `cwd` so picomatch (relative globs) matches whether the caller passed
+ * a repo-relative or absolute path (e.g. lint-staged).
  */
 export function toProjectRelativePath(filePath: string, cwd: string): string {
   const cwdResolved = resolve(cwd);

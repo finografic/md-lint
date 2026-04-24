@@ -3,7 +3,7 @@ import pc from 'picocolors';
 /**
  * Counts passed to {@link formatSummary}. Mirrors `LintAllResult['counts']`.
  */
-export type SummaryCounts = {
+export interface SummaryCounts {
   filesStandard: number;
   filesAgent: number;
   filesTotal: number;
@@ -11,7 +11,7 @@ export type SummaryCounts = {
   errorsAgent: number;
   errorsTotal: number;
   fixesApplied: number;
-};
+}
 
 function pluralize(count: number, singular: string, plural: string): string {
   return count === 1 ? singular : plural;
@@ -30,8 +30,8 @@ function styleErrorCount(n: number, errColW: number): string {
 }
 
 /**
- * Multi-line summary block: linted file count, per-scope bullets with aligned columns,
- * then a recap line (errors vs fixes). Tweak layout here without touching the CLI.
+ * Multi-line summary block: linted file count, per-scope bullets with aligned columns, then a recap line
+ * (errors vs fixes). Tweak layout here without touching the CLI.
  *
  * Ends with two newlines so the next process (e.g. husky) is visually separated from the summary.
  */

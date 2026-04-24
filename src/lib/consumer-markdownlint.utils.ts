@@ -1,13 +1,14 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import ignore from 'ignore';
-import { parse as parseJsonc, printParseErrorCode, type ParseError } from 'jsonc-parser';
+import { parse as parseJsonc, printParseErrorCode } from 'jsonc-parser';
+import type { ParseError } from 'jsonc-parser';
 import { readConfig } from 'markdownlint/sync';
 import type { Configuration, ConfigurationParser } from 'markdownlint';
 
 /**
- * Walk upward from `cwd` and return the first `.markdownlint.jsonc` or `.markdownlint.json`
- * and the first `.markdownlintignore` (consumer convention, same as markdownlint-cli).
+ * Walk upward from `cwd` and return the first `.markdownlint.jsonc` or `.markdownlint.json` and the first
+ * `.markdownlintignore` (consumer convention, same as markdownlint-cli).
  */
 export function findConsumerMarkdownlintPaths(cwd: string): {
   configPath: string | null;

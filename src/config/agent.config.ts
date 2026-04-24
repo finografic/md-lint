@@ -1,3 +1,4 @@
+/* oxfmt-disable */
 import type { Configuration } from 'markdownlint';
 import { defineRules, mapToConfig } from './rule-map.js';
 

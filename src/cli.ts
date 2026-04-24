@@ -7,6 +7,7 @@ import type { FileCategory } from './lib/classify.utils.js';
 import { formatResults } from './lib/format.utils.js';
 import { lintAll } from './lib/lint.utils.js';
 import { formatSummary } from './lib/summary.utils.js';
+
 import pkg from '../package.json' with { type: 'json' };
 
 const HELP = `

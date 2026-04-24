@@ -1,14 +1,15 @@
 import { readFileSync, writeFileSync } from 'node:fs';
-import { resolve, relative } from 'node:path';
+import { relative, resolve } from 'node:path';
 import { globby } from 'globby';
 import { applyFixes } from 'markdownlint';
 import { lint } from 'markdownlint/promise';
-import type { Configuration, LintResults, LintError } from 'markdownlint';
+import type { Configuration, LintError, LintResults } from 'markdownlint';
 
 import { agentConfig } from '../config/agent.config.js';
 import { standardConfig } from '../config/standard.config.js';
 import { ignorePatterns } from '../config/standard.patterns.js';
-import { classifyFiles, type FileCategory } from './classify.utils.js';
+import { classifyFiles } from './classify.utils.js';
+import type { FileCategory } from './classify.utils.js';
 import {
   filterPathsByIgnorePatterns,
   findConsumerMarkdownlintPaths,
@@ -18,7 +19,10 @@ import {
 } from './consumer-markdownlint.utils.js';
 
 export interface LintAllOptions {
-  /** Glob patterns for files to lint. Defaults to ['**\/*.md', '**\/*.mdx']. */
+  /**
+   * Glob patterns for files to lint (passed to globby). When omitted, all `.md` and `.mdx` files under `cwd`
+   * are used.
+   */
   globs?: string[];
   /** Apply auto-fixes. */
   fix?: boolean;
@@ -97,8 +101,7 @@ async function lintFiles(
 }
 
 /**
- * Lint all markdown files, classifying each as standard or agent,
- * and applying the appropriate rule set.
+ * Lint all markdown files, classifying each as standard or agent, and applying the appropriate rule set.
  */
 export async function lintAll(options: LintAllOptions = {}): Promise<LintAllResult> {
   const { globs = ['**/*.md', '**/*.mdx'], fix = false, only, cwd = process.cwd() } = options;

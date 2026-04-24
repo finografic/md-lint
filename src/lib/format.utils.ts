@@ -2,8 +2,8 @@ import pc from 'picocolors';
 import type { LintResults, LintError } from 'markdownlint';
 
 /**
- * Format lint results for stderr: location on its own line (cyan), then rule + description
- * (red + plain), then a blank line before the next violation.
+ * Format lint results for stderr: location on its own line (cyan), then rule + description (red + plain),
+ * then a blank line before the next violation.
  */
 export function formatResults(results: LintResults): string {
   const lines: string[] = [];

@@ -34,11 +34,14 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Build
+        run: pnpm build
+
       - name: Lint
         run: pnpm lint:ci
 
-      - name: Lint
-        run: pnpm lint
+      - name: Lint markdown
+        run: pnpm lint:md
 
       - name: Type check
         run: pnpm typecheck

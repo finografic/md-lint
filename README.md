@@ -1,6 +1,17 @@
 # @finografic/md-lint
 
-> Markdown linter with scoped rule sets for standard and AI agent docs
+> Structural markdown linter with two scoped rule sets — one for human-facing docs, one for AI agent instruction files.
+
+## How it works
+
+Every `.md` file is automatically classified into one of two presets:
+
+| Preset       | Files                                                                                      | Rules                                            |
+| ------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------ |
+| **standard** | All other markdown                                                                         | Strict — structure, headings, code blocks, links |
+| **agent**    | `CLAUDE.md`, `AGENTS.md`, `.github/instructions/**`, `.cursor/rules/**`, and similar paths | Relaxed — hygiene only, no layout constraints    |
+
+Agent docs are consumed by LLMs rather than rendered for humans, so rules like H1 requirement, line length, and inline HTML are disabled for them.
 
 ## Installation
 
@@ -8,51 +19,60 @@
 pnpm add @finografic/md-lint
 ```
 
-## Usage
+## CLI
 
 ```bash
-npx md-lint
-npx md-lint --fix "docs/**/*.md"
+md-lint                        # lint all .md / .mdx files
+md-lint "docs/**/*.md"         # lint a specific glob
+md-lint --fix                  # auto-fix supported issues
+md-lint --only agent           # lint only agent docs
+md-lint --only standard        # lint only standard docs
+md-lint --version
 ```
 
-Finografic **standard** vs **agent** presets apply first. The consumer repo can optionally add:
+## Consumer config
+
+All config files are discovered by walking **upward from `cwd`** until the nearest `.git` root — parent directories above the repo are never consulted.
 
 | File                  | Purpose                                                                   |
 | --------------------- | ------------------------------------------------------------------------- |
-| `.markdownlint.jsonc` | Rule overrides (JSON with comments); merged on top of the matching preset |
-| `.markdownlint.json`  | Same, plain JSON                                                          |
-| `.markdownlintignore` | Extra ignore globs (one per line, `#` comments)                           |
+| `.markdownlint.jsonc` | Rule overrides (JSON with comments), merged on top of the matching preset |
+| `.markdownlint.json`  | Same — plain JSON                                                         |
+| `.markdownlintignore` | Extra ignore globs (one per line, `#` comments supported)                 |
 
-Files are searched **upward** from the current working directory until the nearest **`.git`** directory (repository root), so parent folders and your home directory are not consulted.
-
-**lint-staged:** Hooks often pass **absolute** file paths to `md-lint`. Ignore rules still apply (same as gitignore semantics); upgrade to the latest `@finografic/md-lint` if ignores seemed ignored before.
+## API
 
 ```typescript
 import { lintAll } from '@finografic/md-lint';
 
-await lintAll({ cwd: process.cwd(), fix: false });
+const { results, counts } = await lintAll({
+  cwd: process.cwd(), // default
+  fix: false,         // auto-fix
+  only: 'standard',  // 'standard' | 'agent' | undefined
+  globs: ['**/*.md'], // default
+});
 ```
+
+## lint-staged
+
+```json
+{
+  "*.md": ["md-lint --fix"]
+}
+```
+
+Absolute paths passed by lint-staged are handled correctly — ignore rules apply as normal.
 
 ## Development
 
 ```bash
-# Install dependencies (automatically sets up git hooks)
-pnpm install
-
-# Run in development mode
-pnpm dev
-
-# Build
-pnpm build
-
-# Run tests
-pnpm test:run
-
-# Lint
-pnpm lint
+pnpm install   # install deps and set up git hooks
+pnpm build     # compile to dist/
+pnpm test:run  # run tests
+pnpm lint      # oxlint
+pnpm lint:md   # self-lint (requires a build)
+pnpm typecheck # tsc --noEmit
 ```
-
-**Note:** Git hooks are automatically configured on `pnpm install`. See [docs/DEVELOPER_WORKFLOW.md](./docs/DEVELOPER_WORKFLOW.md) for the complete workflow.
 
 ## License
 

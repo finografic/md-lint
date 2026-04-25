@@ -12,23 +12,26 @@ build/
 .env.*.local
 
 # Agents
+.agents/
+!.agents/handoff.md
 .codex/
 .claude/
+!.claude/handoff.md
 !.claude/settings.json
-!.claude/commands/
-
-# Docs
-docs/drafts/
-
-# IDE
-.cursor/
-!.cursor/rules/
 .worktrees/
 **/worktrees/
+
+# IDE
+**/.cursor/**
+!**/.cursor/.gitkeep
+!.cursor/rules/
+!.vscode/settings.json
 .idea/
 *.swp
 *.swo
 
+# Docs
+docs/drafts/
 
 # Logs
 *.log

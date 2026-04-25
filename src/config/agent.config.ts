@@ -15,7 +15,7 @@ import { defineRules, mapToConfig } from './rule-map.js';
 const rules = defineRules([
   // ── Keep enabled (structural hygiene) ───────────────
   ['MD001', { 'heading-increment': true }],            // don't skip levels
-  ['MD003', { 'heading-style': { style: 'atx' } }],   // consistency still matters
+  ['MD003', { 'heading-style': { style: 'atx' } }],    // consistency still matters
   ['MD009', { 'no-trailing-spaces': true }],
   ['MD031', { 'blanks-around-fences': true }],         // prevents parse failures
   ['MD037', { 'no-space-in-emphasis': true }],

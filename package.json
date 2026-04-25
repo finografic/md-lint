@@ -57,8 +57,8 @@
     "lint": "oxlint -c oxlint.config.ts",
     "lint:fix": "oxlint -c oxlint.config.ts --fix",
     "lint:ci": "oxlint -c oxlint.config.ts --quiet",
-    "lint:md": "tsx src/cli.ts",
-    "lint:md:fix": "tsx src/cli.ts --fix",
+    "lint:md": "node dist/cli.mjs",
+    "lint:md:fix": "node dist/cli.mjs --fix",
     "·········· FORMATTING": "················································",
     "format:check": "oxfmt --check",
     "format:fix": "oxfmt",
@@ -112,7 +112,7 @@
     ],
     "*.md": [
       "oxfmt --no-error-on-unmatched-pattern",
-      "tsx src/cli.ts --fix"
+      "node dist/cli.mjs --fix"
     ],
     "*.{json,jsonc,yml,yaml,toml}": [
       "oxfmt --no-error-on-unmatched-pattern"

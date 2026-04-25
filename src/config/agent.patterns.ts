@@ -36,6 +36,7 @@ export const AGENT_DOC_PATHS = [
   'CONVENTIONS.md',
 
   // ── Development WIP Docs ────────────────────────────
+  '.docs/investigation/**/*.md',
   '.docs/todo/**/*.md',
 ] as const;
 

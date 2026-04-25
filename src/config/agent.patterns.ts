@@ -34,6 +34,9 @@ export const AGENT_DOC_PATHS = [
   'GEMINI.md',
   'COPILOT.md',
   'CONVENTIONS.md',
+
+  // ── Development WIP Docs ────────────────────────────
+  '.docs/todo/**/*.md',
 ] as const;
 
 /**

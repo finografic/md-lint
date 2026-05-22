@@ -6,10 +6,10 @@
 
 Every `.md` file is automatically classified into one of two presets:
 
-| Preset       | Files                                                                                      | Rules                                            |
-| ------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------ |
-| **standard** | All other markdown                                                                         | Strict — structure, headings, code blocks, links |
-| **agent**    | `CLAUDE.md`, `AGENTS.md`, `.github/instructions/**`, `.cursor/rules/**`, and similar paths | Relaxed — hygiene only, no layout constraints    |
+| Preset       | Files                                                                  | Rules                                            |
+| ------------ | ---------------------------------------------------------------------- | ------------------------------------------------ |
+| **standard** | All other markdown                                                     | Strict — structure, headings, code blocks, links |
+| **agent**    | `CLAUDE.md`, `AGENTS.md`, `.github/instructions/**`, and similar paths | Relaxed — hygiene only, no layout constraints    |
 
 Agent docs are consumed by LLMs rather than rendered for humans, so rules like H1 requirement, line length, and inline HTML are disabled for them.
 
@@ -43,13 +43,13 @@ All config files are discovered by walking **upward from `cwd`** until the neare
 ## API
 
 ```typescript
-import { lintAll } from '@finografic/md-lint';
+import { lintAll } from "@finografic/md-lint";
 
 const { results, counts } = await lintAll({
   cwd: process.cwd(), // default
-  fix: false,         // auto-fix
-  only: 'standard',  // 'standard' | 'agent' | undefined
-  globs: ['**/*.md'], // default
+  fix: false, // auto-fix
+  only: "standard", // 'standard' | 'agent' | undefined
+  globs: ["**/*.md"], // default
 });
 ```
 
@@ -76,4 +76,4 @@ pnpm typecheck # tsc --noEmit
 
 ## License
 
-MIT © [Justin](https://github.com/finografic)
+MIT © [Justin Rankin](https://github.com/finografic)

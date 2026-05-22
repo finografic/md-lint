@@ -1,9 +1,5 @@
 /**
  * Known agent/AI instruction document paths across the ecosystem.
- *
- * Sources: - GitHub Copilot: .github/copilot-instructions.md, .github/instructions/ - Cursor: .cursorrules,
- * .cursor/rules/ - Windsurf: .windsurfrules, .windsurf/rules/ - Claude Code: CLAUDE.md convention - Cline:
- * .clinerules, .cline/rules/ - Gemini/multi-agent: GEMINI.md, AGENTS.md, COPILOT.md, CONVENTIONS.md
  */
 export const AGENT_DOC_PATHS = [
   // ── GitHub Copilot ──────────────────────────────────

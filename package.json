@@ -71,7 +71,6 @@
     "·········· REGISTRIES": "················································",
     "view:registry:github": "pnpm view @finografic/md-lint --registry=https://npm.pkg.github.com",
     "·········· PACKAGES": "··················································",
-    "update:eslint-config": "pnpm update @finografic/eslint-config --latest",
     "update:oxc-config": "pnpm update @finografic/oxc-config --latest && pnpm update oxfmt --latest && pnpm update oxlint --latest",
     "update:deps:all": "pnpm update --latest",
     "·········· UTILS": "·····················································",

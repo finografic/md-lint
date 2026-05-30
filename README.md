@@ -38,6 +38,18 @@ md-lint --version
 
 ## Consumer config
 
+### Recommended setup
+
+Create a `.markdownlint.jsonc` at your project root so editors and the markdownlint CLI use the same rules as `md-lint`:
+
+```jsonc
+{
+  "extends": "node_modules/@finografic/md-lint/.markdownlint.jsonc"
+}
+```
+
+### Config discovery
+
 Config is discovered by walking **upward from `cwd`** until the nearest `.git` root.
 Parent directories above the repo are never consulted.
 
@@ -51,23 +63,27 @@ Parent directories above the repo are never consulted.
 `MD013` / `line-length` (and other aliases) normalize to one kebab-case key before merging with finografic presets.
 That keeps `.markdownlint.jsonc` and VS Code settings aligned with the markdownlint CLI.
 
-### Scoped overrides (`standard`, `agent`, `vault`)
+### Scoped overrides (`@finografic/overrides`)
 
-Top-level rule keys apply to **every** category. Optional nested objects apply only to that bucket (merged after globals):
+Top-level rule keys apply to **every** category. To target a specific category (`standard`, `agent`, or `vault`),
+nest overrides under `@finografic/overrides` — interpreted by the `md-lint` runtime and stripped before
+rules are passed to markdownlint:
 
 ```jsonc
 {
   "MD025": false,
-  "standard": {
-    "MD001": false,
-    "MD041": false
-  },
-  "agent": {
-    "MD041": false
-  },
-  "vault": {
-    "MD001": { "front_matter_title": "^\\s*title\\s*[:=]" },
-    "MD041": { "front_matter_title": "^\\s*title\\s*[:=]" }
+  "@finografic/overrides": {
+    "standard": {
+      "MD001": false,
+      "MD041": false
+    },
+    "agent": {
+      "MD041": false
+    },
+    "vault": {
+      "MD001": { "front_matter_title": "^\\s*title\\s*[:=]" },
+      "MD041": { "front_matter_title": "^\\s*title\\s*[:=]" }
+    }
   }
 }
 ```

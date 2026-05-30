@@ -159,14 +159,16 @@ describe('loadConsumerMarkdownlintConfig', () => {
 });
 
 describe('parseScopedConsumerConfig', () => {
-  it('splits global rules from standard/agent/vault scopes', () => {
+  it('splits global rules from @finografic/overrides scopes', () => {
     const parsed = parseScopedConsumerConfig({
-      MD025: false,
-      standard: { MD001: false },
-      vault: {
-        MD001: { front_matter_title: '^\\s*title\\s*[:=]' },
+      'MD025': false,
+      '@finografic/overrides': {
+        standard: { MD001: false },
+        vault: {
+          MD001: { front_matter_title: '^\\s*title\\s*[:=]' },
+        },
       },
-    });
+    } as unknown as Parameters<typeof parseScopedConsumerConfig>[0]);
 
     expect(parsed.global?.['single-title']).toBe(false);
     expect(parsed.standard?.['heading-increment']).toBe(false);

@@ -3,20 +3,12 @@ import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import ignore from 'ignore';
 import { parse as parseJsonc, printParseErrorCode } from 'jsonc-parser';
 import { readConfig } from 'markdownlint/sync';
-import type { FileCategory } from './classify.utils.js';
 import type { ParseError } from 'jsonc-parser';
 import type { Configuration, ConfigurationParser } from 'markdownlint';
 
 import { MARKDOWNLINT_ALIAS_TO_KEBAB } from '../config/markdownlint-rule-aliases.js';
 
-const RESERVED_CONFIG_KEYS = new Set(['$schema', 'extends', 'default']);
-
-/** Top-level keys in `.markdownlint.jsonc` that hold per-category rule overlays. */
-export const SCOPED_CATEGORY_KEYS = ['standard', 'agent', 'vault'] as const satisfies readonly FileCategory[];
-
-export type ScopedCategoryKey = (typeof SCOPED_CATEGORY_KEYS)[number];
-
-const scopedCategoryKeySet = new Set<string>(SCOPED_CATEGORY_KEYS);
+const RESERVED_CONFIG_KEYS = new Set(['$schema', 'extends', 'default', '@finografic/overrides']);
 
 const aliasToKebabRuleName = new Map<string, string>(Object.entries(MARKDOWNLINT_ALIAS_TO_KEBAB));
 
@@ -179,35 +171,17 @@ export interface ScopedConsumerConfig {
   vault: Configuration | null;
 }
 
-function isScopedCategoryKey(key: string): key is ScopedCategoryKey {
-  return scopedCategoryKeySet.has(key);
-}
-
 /**
- * Split a consumer config into global rule overrides and optional `standard` / `agent` / `vault` scopes.
+ * Split a consumer config into global rule overrides and optional per-category scopes.
  *
- * Top-level rule keys (e.g. `MD025`) apply to all categories. Scoped objects merge on top for that bucket
- * only.
+ * Top-level rule keys (e.g. `MD025`) apply to all categories. The `@finografic/overrides` object holds
+ * `standard` / `agent` / `vault` scopes that merge on top for that bucket only.
  */
 export function parseScopedConsumerConfig(raw: Configuration): ScopedConsumerConfig {
   const global: Configuration = {};
-  const scoped: Record<ScopedCategoryKey, Configuration> = {
-    standard: {},
-    agent: {},
-    vault: {},
-  };
 
   for (const [key, value] of Object.entries(raw)) {
-    if (RESERVED_CONFIG_KEYS.has(key)) {
-      continue;
-    }
-    if (isScopedCategoryKey(key)) {
-      if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
-        scoped[key] = normalizeMarkdownlintConfigKeys(value as Configuration);
-      }
-      continue;
-    }
-    if (value === undefined || value === null) {
+    if (RESERVED_CONFIG_KEYS.has(key) || value === undefined || value === null) {
       continue;
     }
     (global as Record<string, unknown>)[key] = value;
@@ -216,11 +190,26 @@ export function parseScopedConsumerConfig(raw: Configuration): ScopedConsumerCon
   const normalizedGlobal = normalizeMarkdownlintConfigKeys(global);
   const hasGlobal = Object.keys(normalizedGlobal).some((k) => !RESERVED_CONFIG_KEYS.has(k));
 
+  const overridesBlock = (raw as Record<string, unknown>)['@finografic/overrides'];
+  const overrides =
+    overridesBlock !== null && typeof overridesBlock === 'object' && !Array.isArray(overridesBlock)
+      ? (overridesBlock as Record<string, unknown>)
+      : {};
+
+  function extractScope(key: string): Configuration | null {
+    const scope = overrides[key];
+    if (scope === null || scope === undefined || typeof scope !== 'object' || Array.isArray(scope)) {
+      return null;
+    }
+    const normalized = normalizeMarkdownlintConfigKeys(scope as Configuration);
+    return Object.keys(normalized).length > 0 ? normalized : null;
+  }
+
   return {
     global: hasGlobal ? normalizedGlobal : null,
-    standard: Object.keys(scoped.standard).length > 0 ? scoped.standard : null,
-    agent: Object.keys(scoped.agent).length > 0 ? scoped.agent : null,
-    vault: Object.keys(scoped.vault).length > 0 ? scoped.vault : null,
+    standard: extractScope('standard'),
+    agent: extractScope('agent'),
+    vault: extractScope('vault'),
   };
 }
 

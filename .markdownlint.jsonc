@@ -3,46 +3,30 @@
   // Global disables (all categories: standard, agent, vault)
   // ========================================================================
 
+  // MD001/heading-increment : Heading levels should only increment by one level at a time : https://github.com/DavidAnson/markdownlint/blob/v0.40.0/doc/md001.md
+  "MD001": false,
+
   // MD025/single-title/single-h1 : Multiple top-level headings in the same document : https://github.com/DavidAnson/markdownlint/blob/v0.40.0/doc/md025.md
   "MD025": false,
 
   // MD028/no-blanks-blockquote : Blank line inside blockquote : https://github.com/DavidAnson/markdownlint/blob/v0.40.0/doc/md028.md
   "MD028": false,
 
-  // ========================================================================
-  // Overrides: standard docs — relaxed heading rules (manifesto, investigation notes, prose-first)
-  // ========================================================================
-
-  "standard": {
-    // MD001/heading-increment : Heading levels should only increment by one level at a time : https://github.com/DavidAnson/markdownlint/blob/v0.40.0/doc/md001.md
-    "MD001": false,
-
-    // MD041/first-line-heading/first-line-h1 : First line in a file should be a top-level heading : https://github.com/DavidAnson/markdownlint/blob/v0.40.0/doc/md041.md
-    "MD041": false
-  },
+  // MD041/first-line-heading/first-line-h1 : First line in a file should be a top-level heading : https://github.com/DavidAnson/markdownlint/blob/v0.40.0/doc/md041.md
+  "MD041": false,
 
   // ========================================================================
-  // Overrides: agent docs — keep MD041 off (CLAUDE.md → @AGENTS.md, etc.)
+  // Category overrides — interpreted by @finografic/md-lint runtime only
   // ========================================================================
 
-  "agent": {
-    // MD041/first-line-heading/first-line-h1 : First line in a file should be a top-level heading : https://github.com/DavidAnson/markdownlint/blob/v0.40.0/doc/md041.md
-    "MD041": false
-  },
+  "@finografic/overrides": {
+    // vault nodes — YAML `title:` is implicit h1; body headings start at ##
+    "vault": {
+      // MD001/heading-increment : Heading levels should only increment by one level at a time : https://github.com/DavidAnson/markdownlint/blob/v0.40.0/doc/md001.md
+      "MD001": { "front_matter_title": "^\\s*title\\s*[:=]" },
 
-  // ========================================================================
-  // Overrides: vault nodes — YAML `title:` is implicit h1; body headings start at ##
-  // ========================================================================
-
-  "vault": {
-    // MD001/heading-increment : Heading levels should only increment by one level at a time : https://github.com/DavidAnson/markdownlint/blob/v0.40.0/doc/md001.md
-    "MD001": {
-      "front_matter_title": "^\\s*title\\s*[:=]"
-    },
-
-    // MD041/first-line-heading/first-line-h1 : First line in a file should be a top-level heading : https://github.com/DavidAnson/markdownlint/blob/v0.40.0/doc/md041.md
-    "MD041": {
-      "front_matter_title": "^\\s*title\\s*[:=]"
+      // MD041/first-line-heading/first-line-h1 : First line in a file should be a top-level heading : https://github.com/DavidAnson/markdownlint/blob/v0.40.0/doc/md041.md
+      "MD041": { "front_matter_title": "^\\s*title\\s*[:=]" }
     }
   }
 }

@@ -1,5 +1,7 @@
 {
-  "standard": {
-    "MD041": false
+  "@finografic/overrides": {
+    "standard": {
+      "MD041": false
+    }
   }
 }

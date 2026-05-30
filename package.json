@@ -34,7 +34,8 @@
   "exports": {
     ".": "./dist/index.mjs",
     "./cli": "./dist/cli.mjs",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./.markdownlint.jsonc": "./.markdownlint.jsonc"
   },
   "bin": {
     "md-lint": "./dist/cli.mjs"

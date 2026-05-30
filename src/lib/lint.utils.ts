@@ -13,9 +13,12 @@ import { classifyFiles } from './classify.utils.js';
 import {
   filterPathsByIgnorePatterns,
   findConsumerMarkdownlintPaths,
+  findVscodeSettingsPath,
   loadConsumerMarkdownlintConfig,
+  loadVscodeMarkdownlintConfig,
   mergeMarkdownlintConfig,
   readMarkdownlintIgnorePatterns,
+  resolveConsumerMarkdownlintOverlay,
 } from './consumer-markdownlint.utils.js';
 
 export interface LintAllOptions {
@@ -30,6 +33,10 @@ export interface LintAllOptions {
   only?: FileCategory;
   /** Working directory (defaults to process.cwd()). */
   cwd?: string;
+  /**
+   * When false, do not load `markdownlint.config` from `.vscode/settings.json` at the git root. Default true.
+   */
+  vscodeSettings?: boolean;
 }
 
 export interface LintAllResult {
@@ -104,19 +111,39 @@ async function lintFiles(
  * Lint all markdown files, classifying each as standard or agent, and applying the appropriate rule set.
  */
 export async function lintAll(options: LintAllOptions = {}): Promise<LintAllResult> {
-  const { globs = ['**/*.md', '**/*.mdx'], fix = false, only, cwd = process.cwd() } = options;
+  const {
+    globs = ['**/*.md', '**/*.mdx'],
+    fix = false,
+    only,
+    cwd = process.cwd(),
+    vscodeSettings = true,
+  } = options;
 
   const { configPath, ignorePath } = findConsumerMarkdownlintPaths(cwd);
   const consumerIgnore = ignorePath ? readMarkdownlintIgnorePatterns(ignorePath) : [];
-  let consumerConfig: Configuration | null = null;
+
+  let fileConfig: Configuration | null = null;
   if (configPath) {
     try {
-      consumerConfig = loadConsumerMarkdownlintConfig(configPath);
+      fileConfig = loadConsumerMarkdownlintConfig(configPath);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       throw new Error(`Failed to load ${configPath}: ${msg}`);
     }
   }
+
+  let vscodeConfig: Configuration | null = null;
+  const vscodeSettingsPath = vscodeSettings ? findVscodeSettingsPath(cwd) : null;
+  if (vscodeSettingsPath) {
+    try {
+      vscodeConfig = loadVscodeMarkdownlintConfig(vscodeSettingsPath);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      throw new Error(`Failed to load ${vscodeSettingsPath}: ${msg}`);
+    }
+  }
+
+  const consumerConfig = resolveConsumerMarkdownlintOverlay({ vscodeConfig, fileConfig });
 
   const effectiveStandard =
     consumerConfig === null ? standardConfig : mergeMarkdownlintConfig(standardConfig, consumerConfig);

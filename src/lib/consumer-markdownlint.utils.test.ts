@@ -3,12 +3,17 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
+import { standardConfig } from '../config/standard.config.js';
 import {
   filterPathsByIgnorePatterns,
   findConsumerMarkdownlintPaths,
+  findVscodeSettingsPath,
   loadConsumerMarkdownlintConfig,
+  loadVscodeMarkdownlintConfig,
   mergeMarkdownlintConfig,
+  normalizeMarkdownlintConfigKeys,
   parseMarkdownlintIgnoreFile,
+  resolveConsumerMarkdownlintOverlay,
 } from './consumer-markdownlint.utils.js';
 
 describe('filterPathsByIgnorePatterns', () => {
@@ -31,6 +36,17 @@ node_modules/
   });
 });
 
+describe('normalizeMarkdownlintConfigKeys', () => {
+  it('maps MD013 onto line-length so a single canonical key remains', () => {
+    const normalized = normalizeMarkdownlintConfigKeys({
+      'line-length': false,
+      'MD013': { line_length: 120 },
+    });
+    expect(normalized['line-length']).toEqual({ line_length: 120 });
+    expect(normalized.MD013).toBeUndefined();
+  });
+});
+
 describe('mergeMarkdownlintConfig', () => {
   it('overrides boolean rules and deep-merges object rule options', () => {
     const base = {
@@ -43,8 +59,71 @@ describe('mergeMarkdownlintConfig', () => {
       MD025: { enabled: false },
     };
     const m = mergeMarkdownlintConfig(base, overlay);
-    expect(m.MD040).toBe(false);
-    expect(m.MD025).toEqual({ level: 1, front_matter_title: '^x', enabled: false });
+    expect(m['fenced-code-language']).toBe(false);
+    expect(m['single-title']).toEqual({ level: 1, front_matter_title: '^x', enabled: false });
+  });
+
+  it('lets consumer MD013: false override preset line-length: false', () => {
+    const merged = mergeMarkdownlintConfig(standardConfig, { MD013: false });
+    expect(merged['line-length']).toBe(false);
+    expect(merged.MD013).toBeUndefined();
+  });
+});
+
+describe('resolveConsumerMarkdownlintOverlay', () => {
+  it('prefers .markdownlint.jsonc over VS Code settings', () => {
+    const combined = resolveConsumerMarkdownlintOverlay({
+      vscodeConfig: { MD013: { line_length: 120 } },
+      fileConfig: { MD013: false },
+    });
+    expect(combined?.['line-length']).toBe(false);
+  });
+});
+
+describe('loadVscodeMarkdownlintConfig', () => {
+  it('reads markdownlint.config from .vscode/settings.json', () => {
+    const root = mkdtempSync(join(tmpdir(), 'md-lint-vscode-'));
+    mkdirSync(join(root, '.vscode'), { recursive: true });
+    writeFileSync(
+      join(root, '.vscode', 'settings.json'),
+      `{
+      "markdownlint.config": {
+        "MD036": false
+      }
+    }\n`,
+    );
+
+    const cfg = loadVscodeMarkdownlintConfig(join(root, '.vscode', 'settings.json'));
+    expect(cfg?.['no-emphasis-as-heading']).toBe(false);
+  });
+});
+
+describe('findVscodeSettingsPath', () => {
+  it('finds settings.json at the git root from a nested cwd', () => {
+    const root = mkdtempSync(join(tmpdir(), 'md-lint-vscode-walk-'));
+    mkdirSync(join(root, '.git'), { recursive: true });
+    mkdirSync(join(root, '.vscode'), { recursive: true });
+    writeFileSync(join(root, '.vscode', 'settings.json'), '{}\n');
+    const nested = join(root, 'apps', 'web');
+    mkdirSync(nested, { recursive: true });
+
+    expect(findVscodeSettingsPath(nested)).toBe(join(root, '.vscode', 'settings.json'));
+  });
+
+  it('ignores nested .vscode folders above cwd but below git root', () => {
+    const root = mkdtempSync(join(tmpdir(), 'md-lint-vscode-nested-'));
+    mkdirSync(join(root, '.git'), { recursive: true });
+    mkdirSync(join(root, '.vscode'), { recursive: true });
+    writeFileSync(join(root, '.vscode', 'settings.json'), '{ "markdownlint.config": { "MD036": false } }\n');
+    const nested = join(root, 'packages', 'app');
+    mkdirSync(join(nested, '.vscode'), { recursive: true });
+    writeFileSync(
+      join(nested, '.vscode', 'settings.json'),
+      '{ "markdownlint.config": { "MD041": false } }\n',
+    );
+    mkdirSync(nested, { recursive: true });
+
+    expect(findVscodeSettingsPath(nested)).toBe(join(root, '.vscode', 'settings.json'));
   });
 });
 
@@ -74,6 +153,6 @@ describe('loadConsumerMarkdownlintConfig', () => {
     }\n`,
     );
     const cfg = loadConsumerMarkdownlintConfig(path);
-    expect(cfg.MD040).toBe(false);
+    expect(cfg['fenced-code-language']).toBe(false);
   });
 });

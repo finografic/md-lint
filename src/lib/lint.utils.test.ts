@@ -9,6 +9,7 @@ describe('lintAll', () => {
   it('returns no errors for good standard markdown', async () => {
     const result = await lintAll({
       cwd: resolve(FIXTURES, 'standard-good'),
+      vscodeSettings: false,
     });
 
     expect(result.counts.errorsTotal).toBe(0);
@@ -20,6 +21,7 @@ describe('lintAll', () => {
   it('returns errors for standard violations (missing H1, missing code fence language)', async () => {
     const result = await lintAll({
       cwd: resolve(FIXTURES, 'standard-bad'),
+      vscodeSettings: false,
     });
 
     expect(result.counts.filesStandard).toBe(1);
@@ -31,6 +33,7 @@ describe('lintAll', () => {
   it('uses relaxed rules for agent files — CLAUDE.md passes with no H1, bare URLs, etc.', async () => {
     const result = await lintAll({
       cwd: resolve(FIXTURES, 'agent-good'),
+      vscodeSettings: false,
     });
 
     expect(result.counts.filesAgent).toBe(1);
@@ -44,6 +47,7 @@ describe('lintAll', () => {
   it('reports MD001 (heading increment) even for agent files', async () => {
     const result = await lintAll({
       cwd: resolve(FIXTURES, 'agent-bad'),
+      vscodeSettings: false,
     });
 
     expect(result.counts.filesAgent).toBe(1);
@@ -55,6 +59,7 @@ describe('lintAll', () => {
   it('standard files DO get MD041 error for missing H1', async () => {
     const result = await lintAll({
       cwd: resolve(FIXTURES, 'standard-bad'),
+      vscodeSettings: false,
     });
 
     const errors = result.results['README.md'] ?? [];
@@ -66,6 +71,7 @@ describe('lintAll', () => {
     const result = await lintAll({
       only: 'standard',
       cwd: resolve(FIXTURES, 'mixed'),
+      vscodeSettings: false,
     });
 
     expect(result.counts.filesAgent).toBe(0);
@@ -76,6 +82,7 @@ describe('lintAll', () => {
     const result = await lintAll({
       only: 'agent',
       cwd: resolve(FIXTURES, 'mixed'),
+      vscodeSettings: false,
     });
 
     expect(result.counts.filesStandard).toBe(0);
@@ -85,6 +92,7 @@ describe('lintAll', () => {
   it('correctly classifies mixed directory — README.md standard, CONVENTIONS.md agent', async () => {
     const result = await lintAll({
       cwd: resolve(FIXTURES, 'mixed'),
+      vscodeSettings: false,
     });
 
     expect(result.counts.filesStandard).toBe(1);
@@ -97,6 +105,7 @@ describe('lintAll', () => {
     const result = await lintAll({
       globs: ['nonexistent/**/*.md'],
       cwd: resolve(FIXTURES, 'standard-good'),
+      vscodeSettings: false,
     });
 
     expect(result.counts.filesTotal).toBe(0);

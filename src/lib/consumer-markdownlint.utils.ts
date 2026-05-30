@@ -6,6 +6,45 @@ import { readConfig } from 'markdownlint/sync';
 import type { ParseError } from 'jsonc-parser';
 import type { Configuration, ConfigurationParser } from 'markdownlint';
 
+import { MARKDOWNLINT_ALIAS_TO_KEBAB } from '../config/markdownlint-rule-aliases.js';
+
+const RESERVED_CONFIG_KEYS = new Set(['$schema', 'extends', 'default']);
+
+const aliasToKebabRuleName = new Map<string, string>(Object.entries(MARKDOWNLINT_ALIAS_TO_KEBAB));
+
+/**
+ * Collapse `MD013` / `line-length` (and other aliases) onto one kebab-case key so merges with finografic
+ * presets do not leave duplicate entries where the last Object.entries pass wins unpredictably.
+ */
+export function normalizeMarkdownlintConfigKeys(config: Configuration): Configuration {
+  const aliasMap = aliasToKebabRuleName;
+  const out: Configuration = {};
+
+  for (const [key, value] of Object.entries(config)) {
+    if (RESERVED_CONFIG_KEYS.has(key)) {
+      (out as Record<string, unknown>)[key] = value;
+      continue;
+    }
+    if (value === undefined || value === null) {
+      continue;
+    }
+
+    const canonical = aliasMap.get(key.toUpperCase()) ?? key;
+    const existing = (out as Record<string, unknown>)[canonical];
+
+    if (isRuleOptionsObject(existing) && isRuleOptionsObject(value)) {
+      (out as Record<string, unknown>)[canonical] = {
+        ...(existing as Record<string, unknown>),
+        ...(value as Record<string, unknown>),
+      };
+    } else {
+      (out as Record<string, unknown>)[canonical] = value;
+    }
+  }
+
+  return out;
+}
+
 /**
  * Walk upward from `cwd` and return the first `.markdownlint.jsonc` or `.markdownlint.json` and the first
  * `.markdownlintignore` (consumer convention, same as markdownlint-cli).
@@ -52,6 +91,79 @@ export function findConsumerMarkdownlintPaths(cwd: string): {
 }
 
 /**
+ * Return `.vscode/settings.json` at the git work-tree root for `cwd`, if any.
+ *
+ * Only the repo-root settings file is used (not nested `.vscode` folders), matching how `.markdownlint.jsonc`
+ * discovery stops at `.git`.
+ */
+export function findVscodeSettingsPath(cwd: string): string | null {
+  let dir = resolve(cwd);
+
+  for (;;) {
+    if (existsSync(join(dir, '.git'))) {
+      const settingsPath = join(dir, '.vscode', 'settings.json');
+      return existsSync(settingsPath) ? settingsPath : null;
+    }
+    const parent = dirname(dir);
+    if (parent === dir) {
+      return null;
+    }
+    dir = parent;
+  }
+}
+
+function parseJsoncObject(text: string, label: string): Record<string, unknown> {
+  const errors: ParseError[] = [];
+  const data = parseJsonc(text, errors, {
+    allowTrailingComma: true,
+    disallowComments: false,
+  });
+  if (errors.length > 0) {
+    const e = errors[0];
+    throw new Error(`JSONC: ${printParseErrorCode(e.error)} at offset ${e.offset} in ${label}`);
+  }
+  if (data === null || typeof data !== 'object' || Array.isArray(data)) {
+    return {};
+  }
+  return data as Record<string, unknown>;
+}
+
+/**
+ * Load `markdownlint.config` from `.vscode/settings.json` when present (VS Code / Cursor workspace settings).
+ */
+export function loadVscodeMarkdownlintConfig(settingsPath: string): Configuration | null {
+  const data = parseJsoncObject(readFileSync(settingsPath, 'utf8'), settingsPath);
+  const block = data['markdownlint.config'];
+  if (block === null || block === undefined) {
+    return null;
+  }
+  if (typeof block !== 'object' || Array.isArray(block)) {
+    throw new Error(`Invalid markdownlint.config in ${settingsPath}: expected an object`);
+  }
+  return normalizeMarkdownlintConfigKeys(block as Configuration);
+}
+
+/**
+ * Merge optional VS Code settings and `.markdownlint.json(c)` overrides (file wins over VS Code).
+ */
+export function resolveConsumerMarkdownlintOverlay(options: {
+  vscodeConfig: Configuration | null;
+  fileConfig: Configuration | null;
+}): Configuration | null {
+  const { vscodeConfig, fileConfig } = options;
+  if (vscodeConfig === null && fileConfig === null) {
+    return null;
+  }
+  if (vscodeConfig === null) {
+    return fileConfig;
+  }
+  if (fileConfig === null) {
+    return vscodeConfig;
+  }
+  return mergeMarkdownlintConfig(vscodeConfig, fileConfig);
+}
+
+/**
  * Parse `.markdownlintignore` body: `#` comments, blank lines stripped; trim each pattern.
  */
 export function parseMarkdownlintIgnoreFile(content: string): string[] {
@@ -92,7 +204,7 @@ export function loadConsumerMarkdownlintConfig(configPath: string): Configuratio
   const config = readConfig(configPath, parsers);
   const copy = { ...config } as Record<string, unknown>;
   delete copy['$schema'];
-  return copy as Configuration;
+  return normalizeMarkdownlintConfigKeys(copy as Configuration);
 }
 
 function isRuleOptionsObject(value: unknown): boolean {
@@ -103,9 +215,10 @@ function isRuleOptionsObject(value: unknown): boolean {
  * Deep-merge per rule: consumer keys override finografic presets. Non-object values replace.
  */
 export function mergeMarkdownlintConfig(base: Configuration, overlay: Configuration): Configuration {
-  const out: Configuration = { ...base };
-  for (const [key, value] of Object.entries(overlay)) {
-    if (key === '$schema' || key === 'extends') {
+  const out: Configuration = { ...normalizeMarkdownlintConfigKeys(base) };
+  const normalizedOverlay = normalizeMarkdownlintConfigKeys(overlay);
+  for (const [key, value] of Object.entries(normalizedOverlay)) {
+    if (RESERVED_CONFIG_KEYS.has(key)) {
       continue;
     }
     if (value === undefined || value === null) {

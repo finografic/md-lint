@@ -2,10 +2,14 @@ export { lintAll, type LintAllOptions, type LintAllResult } from './lib/lint.uti
 export {
   filterPathsByIgnorePatterns,
   findConsumerMarkdownlintPaths,
+  findVscodeSettingsPath,
   loadConsumerMarkdownlintConfig,
+  loadVscodeMarkdownlintConfig,
   mergeMarkdownlintConfig,
+  normalizeMarkdownlintConfigKeys,
   parseMarkdownlintIgnoreFile,
   readMarkdownlintIgnorePatterns,
+  resolveConsumerMarkdownlintOverlay,
 } from './lib/consumer-markdownlint.utils.js';
 export {
   classifyFile,

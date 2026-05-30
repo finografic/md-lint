@@ -23,9 +23,10 @@ ${pc.dim('Options:')}
   --version, -v      Show version
 
 ${pc.dim('Consumer config (optional, discovered upward from cwd until .git):')}
-  .markdownlint.jsonc   Rule overrides merged on top of finografic standard/agent presets
-  .markdownlint.json   Same (JSON only)
-  .markdownlintignore   Extra globby ignore patterns (lines, # comments)
+  .markdownlint.jsonc        Rule overrides (wins over VS Code); merged on finografic presets
+  .markdownlint.json         Same (JSON only)
+  .vscode/settings.json      Optional markdownlint.config (merged before the file)
+  .markdownlintignore        Extra globby ignore patterns (lines, # comments)
 
 ${pc.dim('Examples:')}
   md-lint                          Lint all .md files

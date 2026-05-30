@@ -6,12 +6,13 @@
 
 Every `.md` file is automatically classified into one of two presets:
 
-| Preset       | Files                                                                  | Rules                                            |
-| ------------ | ---------------------------------------------------------------------- | ------------------------------------------------ |
-| **standard** | All other markdown                                                     | Strict — structure, headings, code blocks, links |
-| **agent**    | `CLAUDE.md`, `AGENTS.md`, `.github/instructions/**`, and similar paths | Relaxed — hygiene only, no layout constraints    |
+| Preset       | Files                                        | Rules                                            |
+| ------------ | -------------------------------------------- | ------------------------------------------------ |
+| **standard** | All other markdown                           | Strict — structure, headings, code blocks, links |
+| **agent**    | `AGENTS.md`, `.github/instructions/**`, etc. | Relaxed — hygiene only, no layout constraints    |
 
-Agent docs are consumed by LLMs rather than rendered for humans, so rules like H1 requirement, line length, and inline HTML are disabled for them.
+Agent docs are consumed by LLMs rather than rendered for humans.
+Rules like H1 requirement, line length, and inline HTML are disabled for them.
 
 ## Installation
 
@@ -32,13 +33,18 @@ md-lint --version
 
 ## Consumer config
 
-All config files are discovered by walking **upward from `cwd`** until the nearest `.git` root — parent directories above the repo are never consulted.
+Config is discovered by walking **upward from `cwd`** until the nearest `.git` root.
+Parent directories above the repo are never consulted.
 
-| File                  | Purpose                                                                   |
-| --------------------- | ------------------------------------------------------------------------- |
-| `.markdownlint.jsonc` | Rule overrides (JSON with comments), merged on top of the matching preset |
-| `.markdownlint.json`  | Same — plain JSON                                                         |
-| `.markdownlintignore` | Extra ignore globs (one per line, `#` comments supported)                 |
+| File                    | Purpose                                                    |
+| ----------------------- | ---------------------------------------------------------- |
+| `.markdownlint.jsonc`   | Rule overrides (JSON with comments); **wins** over VS Code |
+| `.markdownlint.json`    | Same — plain JSON                                          |
+| `.vscode/settings.json` | Optional `markdownlint.config`; merged before the file     |
+| `.markdownlintignore`   | Extra ignore globs (one per line, `#` comments supported)  |
+
+`MD013` / `line-length` (and other aliases) normalize to one kebab-case key before merging with finografic presets.
+That keeps `.markdownlint.jsonc` and VS Code settings aligned with the markdownlint CLI.
 
 ## API
 

@@ -9,12 +9,6 @@
   // MD028/no-blanks-blockquote : Blank line inside blockquote : https://github.com/DavidAnson/markdownlint/blob/v0.40.0/doc/md028.md
   "MD028": false,
 
-  // MD034/no-bare-urls : Bare URL used : https://github.com/DavidAnson/markdownlint/blob/v0.40.0/doc/md034.md
-  "MD034": false,
-
-  // MD036/no-emphasis-as-heading : Emphasis used instead of a heading : https://github.com/DavidAnson/markdownlint/blob/v0.40.0/doc/md036.md
-  "MD036": false,
-
   // ========================================================================
   // Overrides: standard docs — relaxed heading rules (manifesto, investigation notes, prose-first)
   // ========================================================================

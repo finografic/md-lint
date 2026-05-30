@@ -54,7 +54,6 @@ coverage/
 # macOS
 .DS_Store
 Thumbs.db
-Icon?
 
 # Windows
 Thumbs.db

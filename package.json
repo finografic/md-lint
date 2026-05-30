@@ -85,7 +85,8 @@
     "jsonc-parser": "^3.3.1",
     "markdownlint": "^0.40.0",
     "picocolors": "^1.1.1",
-    "picomatch": "^4.0.4"
+    "picomatch": "^4.0.4",
+    "tsx": "^4.22.3"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.2.0",
@@ -93,7 +94,6 @@
     "@finografic/oxc-config": "^2.3.4",
     "@types/node": "^24.0.0",
     "@types/picomatch": "^4.0.3",
-    "globals": "^17.3.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "oxfmt": "^0.44.0",

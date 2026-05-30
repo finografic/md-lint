@@ -34,15 +34,15 @@
   "exports": {
     ".": "./dist/index.mjs",
     "./cli": "./dist/cli.mjs",
-    "./package.json": "./package.json",
-    "./.markdownlint.jsonc": "./.markdownlint.jsonc"
+    "./package.json": "./package.json"
   },
   "bin": {
     "md-lint": "./dist/cli.mjs"
   },
   "files": [
     "dist",
-    "styles"
+    "styles",
+    ".markdownlint.jsonc"
   ],
   "scripts": {
     "---------- DEV_AND_BUILD": "---------------------------------------------",

@@ -14,11 +14,11 @@ import {
   filterPathsByIgnorePatterns,
   findConsumerMarkdownlintPaths,
   findVscodeSettingsPath,
+  buildEffectiveCategoryConfig,
   loadConsumerMarkdownlintConfig,
   loadVscodeMarkdownlintConfig,
-  mergeMarkdownlintConfig,
+  resolveScopedConsumerConfig,
   readMarkdownlintIgnorePatterns,
-  resolveConsumerMarkdownlintOverlay,
 } from './consumer-markdownlint.utils.js';
 
 export interface LintAllOptions {
@@ -46,9 +46,11 @@ export interface LintAllResult {
   counts: {
     filesStandard: number;
     filesAgent: number;
+    filesVault: number;
     filesTotal: number;
     errorsStandard: number;
     errorsAgent: number;
+    errorsVault: number;
     errorsTotal: number;
     /** Files written by `--fix` when content changed (markdownlint applyFixes). */
     fixesApplied: number;
@@ -143,12 +145,23 @@ export async function lintAll(options: LintAllOptions = {}): Promise<LintAllResu
     }
   }
 
-  const consumerConfig = resolveConsumerMarkdownlintOverlay({ vscodeConfig, fileConfig });
+  const consumerConfig = resolveScopedConsumerConfig({ vscodeConfig, fileConfig });
 
-  const effectiveStandard =
-    consumerConfig === null ? standardConfig : mergeMarkdownlintConfig(standardConfig, consumerConfig);
-  const effectiveAgent =
-    consumerConfig === null ? agentConfig : mergeMarkdownlintConfig(agentConfig, consumerConfig);
+  const effectiveStandard = buildEffectiveCategoryConfig(
+    standardConfig,
+    consumerConfig.global,
+    consumerConfig.standard,
+  );
+  const effectiveAgent = buildEffectiveCategoryConfig(
+    agentConfig,
+    consumerConfig.global,
+    consumerConfig.agent,
+  );
+  const effectiveVault = buildEffectiveCategoryConfig(
+    standardConfig,
+    consumerConfig.global,
+    consumerConfig.vault,
+  );
 
   // 1. Glob all markdown files
   const mergedIgnore = [...ignorePatterns, ...consumerIgnore];
@@ -161,35 +174,47 @@ export async function lintAll(options: LintAllOptions = {}): Promise<LintAllResu
   const allFiles = filterPathsByIgnorePatterns(allFilesRaw, cwd, mergedIgnore);
 
   // 2. Classify
-  const { standard, agent } = classifyFiles(allFiles, cwd);
+  const { standard, agent, vault } = classifyFiles(allFiles, cwd);
 
   // 3. Lint each category (skip if --only filters it out)
   const standardResult =
-    only === 'agent'
+    only === 'agent' || only === 'vault'
       ? { results: {}, errorCount: 0, fixesApplied: 0 }
       : await lintFiles(standard, effectiveStandard, cwd, fix);
 
   const agentResult =
-    only === 'standard'
+    only === 'standard' || only === 'vault'
       ? { results: {}, errorCount: 0, fixesApplied: 0 }
       : await lintFiles(agent, effectiveAgent, cwd, fix);
+
+  const vaultResult =
+    only === 'standard' || only === 'agent'
+      ? { results: {}, errorCount: 0, fixesApplied: 0 }
+      : await lintFiles(vault, effectiveVault, cwd, fix);
 
   // 4. Merge results
   const mergedResults: LintResults = {
     ...standardResult.results,
     ...agentResult.results,
+    ...vaultResult.results,
   };
+
+  const filesStandard = only === 'agent' || only === 'vault' ? 0 : standard.length;
+  const filesAgent = only === 'standard' || only === 'vault' ? 0 : agent.length;
+  const filesVault = only === 'standard' || only === 'agent' ? 0 : vault.length;
 
   return {
     results: mergedResults,
     counts: {
-      filesStandard: only === 'agent' ? 0 : standard.length,
-      filesAgent: only === 'standard' ? 0 : agent.length,
-      filesTotal: (only === 'agent' ? 0 : standard.length) + (only === 'standard' ? 0 : agent.length),
+      filesStandard,
+      filesAgent,
+      filesVault,
+      filesTotal: filesStandard + filesAgent + filesVault,
       errorsStandard: standardResult.errorCount,
       errorsAgent: agentResult.errorCount,
-      errorsTotal: standardResult.errorCount + agentResult.errorCount,
-      fixesApplied: standardResult.fixesApplied + agentResult.fixesApplied,
+      errorsVault: vaultResult.errorCount,
+      errorsTotal: standardResult.errorCount + agentResult.errorCount + vaultResult.errorCount,
+      fixesApplied: standardResult.fixesApplied + agentResult.fixesApplied + vaultResult.fixesApplied,
     },
   };
 }

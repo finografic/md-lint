@@ -3,12 +3,20 @@ import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import ignore from 'ignore';
 import { parse as parseJsonc, printParseErrorCode } from 'jsonc-parser';
 import { readConfig } from 'markdownlint/sync';
+import type { FileCategory } from './classify.utils.js';
 import type { ParseError } from 'jsonc-parser';
 import type { Configuration, ConfigurationParser } from 'markdownlint';
 
 import { MARKDOWNLINT_ALIAS_TO_KEBAB } from '../config/markdownlint-rule-aliases.js';
 
 const RESERVED_CONFIG_KEYS = new Set(['$schema', 'extends', 'default']);
+
+/** Top-level keys in `.markdownlint.jsonc` that hold per-category rule overlays. */
+export const SCOPED_CATEGORY_KEYS = ['standard', 'agent', 'vault'] as const satisfies readonly FileCategory[];
+
+export type ScopedCategoryKey = (typeof SCOPED_CATEGORY_KEYS)[number];
+
+const scopedCategoryKeySet = new Set<string>(SCOPED_CATEGORY_KEYS);
 
 const aliasToKebabRuleName = new Map<string, string>(Object.entries(MARKDOWNLINT_ALIAS_TO_KEBAB));
 
@@ -161,6 +169,105 @@ export function resolveConsumerMarkdownlintOverlay(options: {
     return vscodeConfig;
   }
   return mergeMarkdownlintConfig(vscodeConfig, fileConfig);
+}
+
+export interface ScopedConsumerConfig {
+  /** Rule overrides applied to every category (before category-specific overlays). */
+  global: Configuration | null;
+  standard: Configuration | null;
+  agent: Configuration | null;
+  vault: Configuration | null;
+}
+
+function isScopedCategoryKey(key: string): key is ScopedCategoryKey {
+  return scopedCategoryKeySet.has(key);
+}
+
+/**
+ * Split a consumer config into global rule overrides and optional `standard` / `agent` / `vault` scopes.
+ *
+ * Top-level rule keys (e.g. `MD025`) apply to all categories. Scoped objects merge on top for that bucket
+ * only.
+ */
+export function parseScopedConsumerConfig(raw: Configuration): ScopedConsumerConfig {
+  const global: Configuration = {};
+  const scoped: Record<ScopedCategoryKey, Configuration> = {
+    standard: {},
+    agent: {},
+    vault: {},
+  };
+
+  for (const [key, value] of Object.entries(raw)) {
+    if (RESERVED_CONFIG_KEYS.has(key)) {
+      continue;
+    }
+    if (isScopedCategoryKey(key)) {
+      if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+        scoped[key] = normalizeMarkdownlintConfigKeys(value as Configuration);
+      }
+      continue;
+    }
+    if (value === undefined || value === null) {
+      continue;
+    }
+    (global as Record<string, unknown>)[key] = value;
+  }
+
+  const normalizedGlobal = normalizeMarkdownlintConfigKeys(global);
+  const hasGlobal = Object.keys(normalizedGlobal).some((k) => !RESERVED_CONFIG_KEYS.has(k));
+
+  return {
+    global: hasGlobal ? normalizedGlobal : null,
+    standard: Object.keys(scoped.standard).length > 0 ? scoped.standard : null,
+    agent: Object.keys(scoped.agent).length > 0 ? scoped.agent : null,
+    vault: Object.keys(scoped.vault).length > 0 ? scoped.vault : null,
+  };
+}
+
+/**
+ * Merge finografic preset + global consumer overlay + optional category overlay.
+ */
+export function buildEffectiveCategoryConfig(
+  preset: Configuration,
+  globalOverlay: Configuration | null,
+  categoryOverlay: Configuration | null,
+): Configuration {
+  let config = preset;
+  if (globalOverlay !== null) {
+    config = mergeMarkdownlintConfig(config, globalOverlay);
+  }
+  if (categoryOverlay !== null) {
+    config = mergeMarkdownlintConfig(config, categoryOverlay);
+  }
+  return config;
+}
+
+/**
+ * Resolve global overlay from file + VS Code, then return scoped category overlays from the file only.
+ */
+export function resolveScopedConsumerConfig(options: {
+  vscodeConfig: Configuration | null;
+  fileConfig: Configuration | null;
+}): ScopedConsumerConfig {
+  if (options.fileConfig === null) {
+    return {
+      global: options.vscodeConfig,
+      standard: null,
+      agent: null,
+      vault: null,
+    };
+  }
+
+  const parsed = parseScopedConsumerConfig(options.fileConfig);
+  return {
+    global: resolveConsumerMarkdownlintOverlay({
+      vscodeConfig: options.vscodeConfig,
+      fileConfig: parsed.global,
+    }),
+    standard: parsed.standard,
+    agent: parsed.agent,
+    vault: parsed.vault,
+  };
 }
 
 /**

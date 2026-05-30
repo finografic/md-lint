@@ -1,0 +1,17 @@
+{
+  "standard": {
+    "MD001": false,
+    "MD041": false
+  },
+  "agent": {
+    "MD041": false
+  },
+  "vault": {
+    "MD001": {
+      "front_matter_title": "^\\s*title\\s*[:=]"
+    },
+    "MD041": {
+      "front_matter_title": "^\\s*title\\s*[:=]"
+    }
+  }
+}

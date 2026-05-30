@@ -112,4 +112,37 @@ describe('lintAll', () => {
     expect(result.counts.errorsTotal).toBe(0);
     expect(result.counts.fixesApplied).toBe(0);
   });
+
+  it('applies scoped consumer config — vault front_matter without breaking standard/agent', async () => {
+    const result = await lintAll({
+      cwd: resolve(FIXTURES, 'vault-scoped'),
+      vscodeSettings: false,
+    });
+
+    expect(result.counts.filesStandard).toBe(1);
+    expect(result.counts.filesVault).toBe(1);
+    expect(result.counts.errorsTotal).toBe(0);
+  });
+
+  it('classifies vault markdown under vault/**/*.md', async () => {
+    const result = await lintAll({
+      cwd: resolve(FIXTURES, 'vault-good'),
+      vscodeSettings: false,
+    });
+
+    expect(result.counts.filesVault).toBe(1);
+    expect(result.counts.filesStandard).toBe(0);
+  });
+
+  it('--only vault skips standard and agent files', async () => {
+    const result = await lintAll({
+      only: 'vault',
+      cwd: resolve(FIXTURES, 'vault-scoped'),
+      vscodeSettings: false,
+    });
+
+    expect(result.counts.filesStandard).toBe(0);
+    expect(result.counts.filesAgent).toBe(0);
+    expect(result.counts.filesVault).toBe(1);
+  });
 });

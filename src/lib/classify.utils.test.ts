@@ -3,6 +3,10 @@ import { describe, it, expect } from 'vitest';
 import { classifyFile, classifyFiles } from './classify.utils.js';
 
 describe('classifyFile', () => {
+  it('classifies vault/nodes/idea.md as vault', () => {
+    expect(classifyFile('vault/nodes/idea.md')).toBe('vault');
+  });
+
   it('classifies README.md as standard', () => {
     expect(classifyFile('README.md')).toBe('standard');
   });
@@ -77,27 +81,38 @@ describe('classifyFiles', () => {
       'src/utils.md',
     ];
 
-    const { standard, agent } = classifyFiles(files);
+    const { standard, agent, vault } = classifyFiles(files);
 
     expect(standard).toEqual(['README.md', 'docs/guide.md', 'src/utils.md']);
     expect(agent).toEqual(['CLAUDE.md', 'AGENTS.md', '.github/skills/deploy/SKILL.md']);
+    expect(vault).toEqual([]);
   });
 
   it('returns empty arrays when input is empty', () => {
-    const { standard, agent } = classifyFiles([]);
+    const { standard, agent, vault } = classifyFiles([]);
     expect(standard).toEqual([]);
     expect(agent).toEqual([]);
+    expect(vault).toEqual([]);
   });
 
-  it('returns all standard when no agent files present', () => {
-    const { standard, agent } = classifyFiles(['README.md', 'docs/guide.md']);
+  it('returns all standard when no agent or vault files present', () => {
+    const { standard, agent, vault } = classifyFiles(['README.md', 'docs/guide.md']);
     expect(standard).toHaveLength(2);
     expect(agent).toHaveLength(0);
+    expect(vault).toHaveLength(0);
   });
 
-  it('returns all agent when no standard files present', () => {
-    const { standard, agent } = classifyFiles(['CLAUDE.md', 'AGENTS.md']);
+  it('returns all agent when no standard or vault files present', () => {
+    const { standard, agent, vault } = classifyFiles(['CLAUDE.md', 'AGENTS.md']);
     expect(standard).toHaveLength(0);
     expect(agent).toHaveLength(2);
+    expect(vault).toHaveLength(0);
+  });
+
+  it('partitions vault paths into the vault bucket', () => {
+    const { standard, agent, vault } = classifyFiles(['README.md', 'vault/nodes/x.md']);
+    expect(standard).toEqual(['README.md']);
+    expect(agent).toEqual([]);
+    expect(vault).toEqual(['vault/nodes/x.md']);
   });
 });

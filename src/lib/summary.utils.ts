@@ -6,9 +6,11 @@ import pc from 'picocolors';
 export interface SummaryCounts {
   filesStandard: number;
   filesAgent: number;
+  filesVault: number;
   filesTotal: number;
   errorsStandard: number;
   errorsAgent: number;
+  errorsVault: number;
   errorsTotal: number;
   fixesApplied: number;
 }
@@ -41,18 +43,32 @@ export function formatSummary(counts: SummaryCounts): string {
   lines.push(pc.bold(`Linted ${counts.filesTotal} ${pluralize(counts.filesTotal, 'file', 'files')}`));
   lines.push('');
 
-  const fileColW = Math.max(String(counts.filesStandard).length, String(counts.filesAgent).length, 1);
-  const errColW = Math.max(String(counts.errorsStandard).length, String(counts.errorsAgent).length, 1);
+  const fileColW = Math.max(
+    String(counts.filesStandard).length,
+    String(counts.filesAgent).length,
+    String(counts.filesVault).length,
+    1,
+  );
+  const errColW = Math.max(
+    String(counts.errorsStandard).length,
+    String(counts.errorsAgent).length,
+    String(counts.errorsVault).length,
+    1,
+  );
 
   const standardLabel = `${pluralize(counts.filesStandard, 'standard md file', 'standard md files')}`;
   const agentLabel = `${pluralize(counts.filesAgent, 'agent md file', 'agent md files')}`;
-  const labelW = Math.max(standardLabel.length, agentLabel.length);
+  const vaultLabel = `${pluralize(counts.filesVault, 'vault md file', 'vault md files')}`;
+  const labelW = Math.max(standardLabel.length, agentLabel.length, vaultLabel.length);
 
   const stdLine = `- ${padNum(counts.filesStandard, fileColW)} ${standardLabel.padEnd(labelW)}:  ${styleErrorCount(counts.errorsStandard, errColW)}`;
   lines.push(stdLine);
 
   const agentLine = `- ${padNum(counts.filesAgent, fileColW)} ${agentLabel.padEnd(labelW)}:  ${styleErrorCount(counts.errorsAgent, errColW)}`;
   lines.push(agentLine);
+
+  const vaultLine = `- ${padNum(counts.filesVault, fileColW)} ${vaultLabel.padEnd(labelW)}:  ${styleErrorCount(counts.errorsVault, errColW)}`;
+  lines.push(vaultLine);
   lines.push('');
 
   if (counts.fixesApplied > 0) {

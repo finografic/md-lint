@@ -18,12 +18,12 @@ ${pc.dim('Usage:')}
 
 ${pc.dim('Options:')}
   --fix              Auto-fix supported issues
-  --only <scope>     Only lint 'standard' or 'agent' files
+  --only <scope>     Only lint 'standard', 'agent', or 'vault' files
   --help, -h         Show this help message
   --version, -v      Show version
 
 ${pc.dim('Consumer config (optional, discovered upward from cwd until .git):')}
-  .markdownlint.jsonc        Rule overrides (wins over VS Code); merged on finografic presets
+  .markdownlint.jsonc        Rule overrides (wins over VS Code); optional standard/agent/vault scopes
   .markdownlint.json         Same (JSON only)
   .vscode/settings.json      Optional markdownlint.config (merged before the file)
   .markdownlintignore        Extra globby ignore patterns (lines, # comments)
@@ -33,6 +33,7 @@ ${pc.dim('Examples:')}
   md-lint "docs/**/*.md"           Lint specific paths
   md-lint --fix                    Auto-fix issues
   md-lint --only agent             Only lint agent docs
+  md-lint --only vault             Only lint vault docs
 `.trim();
 
 function parseArgs(argv: string[]): {
@@ -56,8 +57,8 @@ function parseArgs(argv: string[]): {
         break;
       case '--only': {
         const value = argv[++i];
-        if (value !== 'standard' && value !== 'agent') {
-          console.error(`${pc.red('Error:')} --only must be 'standard' or 'agent', got '${value}'`);
+        if (value !== 'standard' && value !== 'agent' && value !== 'vault') {
+          console.error(`${pc.red('Error:')} --only must be 'standard', 'agent', or 'vault', got '${value}'`);
           process.exit(2);
         }
         only = value;

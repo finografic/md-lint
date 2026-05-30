@@ -13,6 +13,7 @@ import {
   mergeMarkdownlintConfig,
   normalizeMarkdownlintConfigKeys,
   parseMarkdownlintIgnoreFile,
+  parseScopedConsumerConfig,
   resolveConsumerMarkdownlintOverlay,
 } from './consumer-markdownlint.utils.js';
 
@@ -154,5 +155,24 @@ describe('loadConsumerMarkdownlintConfig', () => {
     );
     const cfg = loadConsumerMarkdownlintConfig(path);
     expect(cfg['fenced-code-language']).toBe(false);
+  });
+});
+
+describe('parseScopedConsumerConfig', () => {
+  it('splits global rules from standard/agent/vault scopes', () => {
+    const parsed = parseScopedConsumerConfig({
+      MD025: false,
+      standard: { MD001: false },
+      vault: {
+        MD001: { front_matter_title: '^\\s*title\\s*[:=]' },
+      },
+    });
+
+    expect(parsed.global?.['single-title']).toBe(false);
+    expect(parsed.standard?.['heading-increment']).toBe(false);
+    expect(parsed.agent).toBeNull();
+    expect(parsed.vault?.['heading-increment']).toEqual({
+      front_matter_title: '^\\s*title\\s*[:=]',
+    });
   });
 });

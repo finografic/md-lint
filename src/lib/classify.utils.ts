@@ -2,13 +2,18 @@ import { isAbsolute, relative, resolve } from 'node:path';
 import picomatch from 'picomatch';
 
 import { AGENT_DOC_MARKDOWN_PATHS } from '../config/agent.patterns.js';
+import { VAULT_DOC_MARKDOWN_PATHS } from '../config/vault.patterns.js';
 
-export type FileCategory = 'standard' | 'agent';
+export type FileCategory = 'standard' | 'agent' | 'vault';
 
 /**
  * Build a matcher from the agent doc glob patterns. picomatch compiles globs once; the returned function is
  * O(1) per file.
  */
+const isVaultDoc = picomatch(VAULT_DOC_MARKDOWN_PATHS as unknown as string[], {
+  dot: true,
+});
+
 const isAgentDoc = picomatch(AGENT_DOC_MARKDOWN_PATHS as unknown as string[], {
   dot: true,
 });
@@ -28,11 +33,17 @@ export function toProjectRelativePath(filePath: string, cwd: string): string {
  *
  * @param filePath - Path relative to `cwd`, or absolute under `cwd` (lint-staged often passes absolute)
  * @param cwd - Project root (default: `process.cwd()`)
- * @returns 'agent' if it matches any AGENT_DOC_MARKDOWN_PATHS glob, else 'standard'
+ * @returns 'vault' | 'agent' if path matches those globs (vault checked first), else 'standard'
  */
 export function classifyFile(filePath: string, cwd: string = process.cwd()): FileCategory {
   const forMatch = toProjectRelativePath(filePath, cwd);
-  return isAgentDoc(forMatch) ? 'agent' : 'standard';
+  if (isVaultDoc(forMatch)) {
+    return 'vault';
+  }
+  if (isAgentDoc(forMatch)) {
+    return 'agent';
+  }
+  return 'standard';
 }
 
 /**
@@ -46,17 +57,22 @@ export function classifyFiles(
 ): {
   standard: string[];
   agent: string[];
+  vault: string[];
 } {
   const standard: string[] = [];
   const agent: string[] = [];
+  const vault: string[] = [];
 
   for (const p of paths) {
-    if (classifyFile(p, cwd) === 'agent') {
+    const category = classifyFile(p, cwd);
+    if (category === 'vault') {
+      vault.push(p);
+    } else if (category === 'agent') {
       agent.push(p);
     } else {
       standard.push(p);
     }
   }
 
-  return { standard, agent };
+  return { standard, agent, vault };
 }

@@ -1,18 +1,22 @@
 # @finografic/md-lint
 
-> Structural markdown linter with two scoped rule sets — one for human-facing docs, one for AI agent instruction files.
+> Scoped markdown linter for standard docs, agent instruction files, and vault YAML front matter.
 
 ## How it works
 
-Every `.md` file is automatically classified into one of two presets:
+Every `.md` file is automatically classified into one of three presets:
 
 | Preset       | Files                                        | Rules                                            |
 | ------------ | -------------------------------------------- | ------------------------------------------------ |
 | **standard** | All other markdown                           | Strict — structure, headings, code blocks, links |
 | **agent**    | `AGENTS.md`, `.github/instructions/**`, etc. | Relaxed — hygiene only, no layout constraints    |
+| **vault**    | `vault/**/*.md`                              | Standard base + optional scoped overrides        |
 
 Agent docs are consumed by LLMs rather than rendered for humans.
 Rules like H1 requirement, line length, and inline HTML are disabled for them.
+
+Vault nodes use YAML `title:` front matter. Use scoped config (below) for `front_matter_title` on MD001/MD041
+without affecting other categories.
 
 ## Installation
 
@@ -28,6 +32,7 @@ md-lint "docs/**/*.md"         # lint a specific glob
 md-lint --fix                  # auto-fix supported issues
 md-lint --only agent           # lint only agent docs
 md-lint --only standard        # lint only standard docs
+md-lint --only vault           # lint only vault docs
 md-lint --version
 ```
 
@@ -46,6 +51,29 @@ Parent directories above the repo are never consulted.
 `MD013` / `line-length` (and other aliases) normalize to one kebab-case key before merging with finografic presets.
 That keeps `.markdownlint.jsonc` and VS Code settings aligned with the markdownlint CLI.
 
+### Scoped overrides (`standard`, `agent`, `vault`)
+
+Top-level rule keys apply to **every** category. Optional nested objects apply only to that bucket (merged after globals):
+
+```jsonc
+{
+  "MD025": false,
+  "standard": {
+    "MD001": false,
+    "MD041": false
+  },
+  "agent": {
+    "MD041": false
+  },
+  "vault": {
+    "MD001": { "front_matter_title": "^\\s*title\\s*[:=]" },
+    "MD041": { "front_matter_title": "^\\s*title\\s*[:=]" }
+  }
+}
+```
+
+This avoids re-enabling MD041 on agent files when you only want `front_matter_title` for vault nodes.
+
 ## API
 
 ```typescript
@@ -54,7 +82,7 @@ import { lintAll } from "@finografic/md-lint";
 const { results, counts } = await lintAll({
   cwd: process.cwd(), // default
   fix: false, // auto-fix
-  only: "standard", // 'standard' | 'agent' | undefined
+  only: "standard", // 'standard' | 'agent' | 'vault' | undefined
   globs: ["**/*.md"], // default
 });
 ```

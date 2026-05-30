@@ -18,7 +18,7 @@ describe('lintAll', () => {
     expect(result.counts.fixesApplied).toBe(0);
   });
 
-  it('returns errors for standard violations (missing H1, missing code fence language)', async () => {
+  it('returns MD041 for standard violations (missing H1) with preset rules only', async () => {
     const result = await lintAll({
       cwd: resolve(FIXTURES, 'standard-bad'),
       vscodeSettings: false,
@@ -56,15 +56,16 @@ describe('lintAll', () => {
     expect(md001Errors.length).toBeGreaterThan(0);
   });
 
-  it('standard files DO get MD041 error for missing H1', async () => {
+  it('scoped consumer config can disable MD041 for standard files', async () => {
     const result = await lintAll({
-      cwd: resolve(FIXTURES, 'standard-bad'),
+      cwd: resolve(FIXTURES, 'standard-scoped-relaxed'),
       vscodeSettings: false,
     });
 
+    expect(result.counts.filesStandard).toBe(1);
     const errors = result.results['README.md'] ?? [];
     const md041Errors = errors.filter((e) => e.ruleNames.includes('MD041'));
-    expect(md041Errors.length).toBeGreaterThan(0);
+    expect(md041Errors).toHaveLength(0);
   });
 
   it('--only standard skips agent files', async () => {

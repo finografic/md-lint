@@ -14,6 +14,7 @@ const rules = defineRules([
   ['MD003', { 'heading-style': { style: 'atx' } }],                 // # style only
   ['MD024', { 'no-duplicate-heading': { siblings_only: true } }],   // allow same text under different parents
   ['MD026', { 'no-trailing-punctuation': false }],                  // disable trailing punctuation
+  ['MD036', { 'no-emphasis-as-heading': false }],                   // bold-as-heading is common pattern
   ['MD041', { 'first-line-heading': { level: 1 } }],                // must start with H1
 
   // ── Whitespace ──────────────────────────────────────

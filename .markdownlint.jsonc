@@ -21,6 +21,9 @@
   // MD036/no-emphasis-as-heading : Emphasis used instead of a heading : https://github.com/DavidAnson/markdownlint/blob/v0.40.0/doc/md036.md
   "MD036": false,
 
+  // MD040/fenced-code-language : Fenced code blocks should have a language specified : https://github.com/DavidAnson/markdownlint/blob/v0.40.0/doc/md040.md
+  "MD040": false,
+
   // MD041/first-line-heading/first-line-h1 : First line in a file should be a top-level heading : https://github.com/DavidAnson/markdownlint/blob/v0.40.0/doc/md041.md
   "MD041": false,
 
